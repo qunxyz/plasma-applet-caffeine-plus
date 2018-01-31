@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+      http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+    <kcfgfile name=""/>
+
+    <group name="General">
+        <entry name="autostart" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="isShowIndicator" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="enableFullscreen" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="useDefaultIcons" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="iconActive" type="String">
+            <default>caffeine-plus-on</default>
+        </entry>
+        <entry name="iconInactive" type="String">
+            <default>caffeine-plus-off</default>
+        </entry>
+    </group>
+
+    <group name="Advanced">
+        <entry name="enableRestore" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="enableNotifications" type="Bool">
+            <default>true</default>
+        </entry>
+    </group>
+
+</kcfg>

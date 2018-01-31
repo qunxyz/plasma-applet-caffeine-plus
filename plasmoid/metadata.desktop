@@ -1,0 +1,18 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Caffeine Plus
+Comment=Disable screensaver and auto suspend
+Type=Service
+ServiceTypes=Plasma/Applet
+Icon=caffeine-plus
+
+X-KDE-PluginInfo-Author=Gordon Yau
+X-KDE-PluginInfo-Email=qunxyz@gmail.com
+X-KDE-PluginInfo-License=GPL
+X-KDE-PluginInfo-Name=org.kde.caffeine-plus
+X-KDE-PluginInfo-Version=2.0
+X-KDE-PluginInfo-Website=plasma.kde.org
+X-Plasma-API=declarativeappletscript
+X-Plasma-MainScript=ui/main.qml
+X-KDE-PluginInfo-Category=Miscellaneous
+X-KDE-PluginInfo-EnabledByDefault=true
