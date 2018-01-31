@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+class QDBusServiceWatcher;
+
 using InhibitionInfo = QPair<QString, QString>;
 
 class CaffeinePlus : public QObject
@@ -10,26 +12,26 @@ class CaffeinePlus : public QObject
     Q_OBJECT
 
 public:
-	CaffeinePlus(QObject *parent = 0);
-    ~CaffeinePlus();
+	CaffeinePlus(QObject *parent = nullptr);
+	virtual ~CaffeinePlus();
 
 public Q_SLOTS:
-	void init();
-	QString checkName();
+	void checkInhibition();
 
+    bool isInhibited() const {
+    	return m_inhibited;
+    }
 
-    uint AddInhibition(uint in0, const QString &in1, const QString &in2);
-    bool HasInhibition(uint in0);
-    QList<InhibitionInfo> ListInhibitions();
-    void ReleaseInhibition(uint in0);
-Q_SIGNALS: // SIGNALS
-    void InhibitionsChanged(const QList<InhibitionInfo> &in0, const QStringList &in1);
+private Q_SLOTS:
+	void inhibitionsChanged(const QList<InhibitionInfo> &added, const QStringList &removed);
 
 private:
-	QStringList _apps;
-	QStringList _cookies;
-	QStringList _inhibitors;
-	QStringList _windows;
+//	void checkInhibition();
+	void update();
+
+	QDBusServiceWatcher *m_solidPowerServiceWatcher;
+	bool m_serviceRegistered = false;
+	bool m_inhibited = false;
 };
 
 #endif // CAFFEINE_PLUS_H

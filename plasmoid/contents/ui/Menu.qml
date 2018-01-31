@@ -62,7 +62,6 @@ Page {
                 }
             }
             //onClicked: pageStack.push(Qt.createComponent(page))
-            onClicked: console.log(caffeinePlus.getName())
         }
     }
     ScrollBar {
@@ -75,8 +74,5 @@ Page {
             right: parent.right
             bottom: parent.bottom
         }
-    }
-	CaffeinePlus {
-        id: caffeinePlus
     }
 }

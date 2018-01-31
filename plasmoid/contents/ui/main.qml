@@ -5,11 +5,37 @@ import org.kde.plasma.plasmoid 2.0
 import org.kde.plasma.core 2.0 as PlasmaCore
 
 Item {
+	id: root
 	property var icon: plasmoid.configuration.iconInactive
 
     Plasmoid.switchWidth: 300
     Plasmoid.switchHeight: 400
 
+	Component.onCompleted: {
+		console.log("#############autostart")
+		console.log(plasmoid.configuration.autostart)
+		console.log("#############enableFullscreen")
+		console.log(plasmoid.configuration.enableFullscreen)
+		console.log("#############useDefaultIcons")
+		console.log(plasmoid.configuration.useDefaultIcons)
+		console.log("#############isShowIndicator")
+		console.log(plasmoid.configuration.isShowIndicator)
+		console.log("#############enableNotifications")
+		console.log(plasmoid.configuration.enableNotifications)
+		console.log("#############enableRestore")
+		console.log(plasmoid.configuration.enableRestore)
+		console.log("#############iconActive")
+		console.log(plasmoid.configuration.iconActive)
+		console.log("#############iconInactive")
+		console.log(plasmoid.configuration.iconInactive)
+		console.log("#############isInhibited")
+		var inst = caffeinePlus.getInstance()
+		if ( inst ) {
+			console.log(inst.isInhibited())
+		} else {
+			console.log("error happened")
+		}
+    }
     Plasmoid.preferredRepresentation: Plasmoid.compactRepresentation
     Plasmoid.compactRepresentation: PlasmaCore.IconItem {
         source: icon
@@ -26,7 +52,15 @@ Item {
         MouseArea {
             id: mouseArea
             anchors.fill: parent
-            onClicked: plasmoid.expanded = !plasmoid.expanded
+            onClicked: {
+            	plasmoid.expanded = !plasmoid.expanded
+            	console.log("############################################################")
+            	if (parent.source == plasmoid.configuration.iconActive) {
+            		parent.source = plasmoid.configuration.iconInactive
+            	} else {
+            		parent.source = plasmoid.configuration.iconActive
+            	}
+            }
             hoverEnabled: true
         }
     }
@@ -58,5 +92,8 @@ Item {
             }
             initialPage: Qt.createComponent("Menu.qml")
         }
+    }
+	CaffeinePlus {
+        id: caffeinePlus
     }
 }

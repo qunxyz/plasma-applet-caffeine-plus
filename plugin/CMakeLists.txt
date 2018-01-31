@@ -27,7 +27,7 @@ include_directories(
 )
 message("CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
 
-qt5_add_dbus_adaptor(plasmoidplugin_SRCS kf5_org.kde.Solid.PowerManagement.PolicyAgent.xml caffeine-plus.h CaffeinePlus)
+#qt5_add_dbus_adaptor(plasmoidplugin_SRCS kf5_org.kde.Solid.PowerManagement.PolicyAgent.xml caffeine-plus.h CaffeinePlus)
 #qt5_add_dbus_interfaces(plasmoidplugin_SRCS kf5_org.kde.Solid.PowerManagement.PolicyAgent.xml)
 
 add_library(plasmoidplugin SHARED ${plasmoidplugin_SRCS})

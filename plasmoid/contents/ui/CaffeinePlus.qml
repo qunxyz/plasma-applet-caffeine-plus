@@ -26,11 +26,20 @@ Item {
         return plugin
     }
 
-    function getName() {
+    function getInstance() {
+        var c = getCaffeinePlus()
+        if (c) {
+            return c
+        } else {
+            console.exception('ERROR: get name from plugin - Caffeine Plus not available')
+        }
+    }
+
+    function test() {
 
         var c = getCaffeinePlus()
         if (c) {
-            var result = c.checkName()
+            var result = c.checkInhibition()
             console.log(result)
 
         } else {
