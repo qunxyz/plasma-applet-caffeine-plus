@@ -1,47 +1,45 @@
 /*
-*   Copyright (C) 2011 by Daker Fernandes Pinheiro <dakerfp@gmail.com>
-*
-*   This program is free software; you can redistribute it and/or modify
-*   it under the terms of the GNU Library General Public License as
-*   published by the Free Software Foundation; either version 2, or
-*   (at your option) any later version.
-*
-*   This program is distributed in the hope that it will be useful,
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*   GNU General Public License for more details
-*
-*   You should have received a copy of the GNU Library General Public
-*   License along with this program; if not, write to the
-*   Free Software Foundation, Inc.,
-*   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
-
+ * Copyright 2016  Eike Hein <hein@kde.org>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http: //www.gnu.org/licenses/>.
+ */
 import QtQuick 2.0
+import QtQuick.Layouts 1.1
+
+import org.kde.plasma.plasmoid 2.0
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 2.0 as PlasmaComponents
+import org.kde.plasma.extras 2.0 as PlasmaExtras
+
 import org.kde.taskmanager 0.1 as TaskManager
 import org.kde.kwindowsystem 1.0 as KWindowSystem
 
 
-PlasmaComponents.Page {
-    tools: PlasmaComponents.ToolBarLayout {
-        spacing: 5
-        PlasmaComponents.CheckBox {
-        	id: enableRestore
-            text: "Inhibit suspend"
-            onCheckedChanged: {
-            	plasmoid.configuration.enableRestore = checked
-			}
-			onClicked: caffeinePlus.toggle(enableRestore.checked)
-			Component.onCompleted: {
-				enableRestore.checked = plasmoid.configuration.enableRestore
-			}
-        }
-    }
+Item {
+    id: root
 
+    Layout.minimumWidth: units.gridUnit * 12
+    Layout.minimumHeight: units.gridUnit * 12
 
+    Plasmoid.switchWidth: units.gridUnit * 11
+    Plasmoid.switchHeight: units.gridUnit * 11
 
+    Plasmoid.toolTipSubText: i18n("Show list of opened windows")
+
+    property int itemHeight: Math.ceil((Math.max(theme.mSize(theme.defaultFont).height, units.iconSizes.small)
+        + Math.max(highlightItemSvg.margins.top + highlightItemSvg.margins.bottom,
+        listItemSvg.margins.top + listItemSvg.margins.bottom)) / 2) * 2
 
     TaskManager.TasksModel {
         id: tasksModel
@@ -57,6 +55,48 @@ PlasmaComponents.Page {
     KWindowSystem.KWindowSystem {
         id: windowSystem
     }
+
+    PlasmaCore.FrameSvgItem {
+        id : highlightItemSvg
+
+        visible: false
+
+        imagePath: "widgets/viewitem"
+        prefix: "hover"
+    }
+
+    PlasmaCore.FrameSvgItem {
+        id : listItemSvg
+
+        visible: false
+
+        imagePath: "widgets/viewitem"
+        prefix: "normal"
+    }
+
+    Connections {
+        target: plasmoid
+
+        onExpandedChanged: {
+            if (!expanded) {
+                windowListView.currentIndex = 0;
+            }
+        }
+    }
+
+    PlasmaExtras.ScrollArea {
+    	anchors.top: windowPin.bottom
+        //anchors.fill: parent
+        width: parent.width
+        height: parent.height - windowPin.height
+
+        focus: true
+
+        onFocusChanged: {
+            if (!focus) {
+                windowListView.currentIndex = -1;
+            }
+        }
 
         ListView {
             id: windowListView
@@ -190,76 +230,70 @@ PlasmaComponents.Page {
                 }
             }
         }
-
-
-
-
-
-    /*
-    ListView {
-        id: pageSelector
-        clip: true
-        anchors.fill: parent
-
-        model:  ListModel {
-            id: pagesModel
-            ListElement {
-                title: "testing title"
-            }
-            ListElement {
-                title: "Checkable buttons"
-            }
-            ListElement {
-                title: "Busy indicators"
-            }
-            ListElement {
-                title: "Sliders"
-            }
-            ListElement {
-                title: "Scrollers"
-            }
-            ListElement {
-                title: "Text elements"
-            }
-            ListElement {
-                title: "Typography"
-            }
-            ListElement {
-                title: "Misc stuff"
-            }
-        }
-        delegate: ListItem {
-            enabled: true
-            Column {
-                Label {
-                    text: title
-                }
-            }
-            //onClicked: pageStack.push(Qt.createComponent(page))
-        }
-    }*/
-
-    PlasmaComponents.ScrollBar {
-        id: horizontalScrollBar
-
-        flickableItem: pageSelector
-        orientation: Qt.Horizontal
-        anchors {
-            left: parent.left
-            right: verticalScrollBar.left
-            bottom: parent.bottom
-        }
     }
 
-    PlasmaComponents.ScrollBar {
-        id: verticalScrollBar
+        PlasmaComponents.CheckBox {
+        	id: enableRestore
+            text: "Inhibit suspend"
+            onCheckedChanged: {
+            	plasmoid.configuration.enableRestore = checked
+			}
+			onClicked: caffeinePlus.toggle(enableRestore.checked)
+			Component.onCompleted: {
+				enableRestore.checked = plasmoid.configuration.enableRestore
+			}
+        }
+    PlasmaComponents.ToolButton {
+        id: windowPin
 
-        orientation: Qt.Vertical
-        flickableItem: pageSelector
-        anchors {
-            top: parent.top
-            right: parent.right
-            bottom: horizontalScrollBar.top
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.rightMargin: windowListView.overflowing ? units.gridUnit : 0
+
+        width: Math.round(units.gridUnit * 1.25)
+        //height: width
+
+        iconSource: "window-pin"
+
+        checkable: true
+        onCheckedChanged: plasmoid.hideOnWindowDeactivate = !checked
+
+        Keys.onTabPressed: {
+            if (windowListView.count) {
+                windowListView.currentIndex = 0;
+                windowListView.forceActiveFocus();
+            }
+        }
+
+        Keys.onBacktabPressed: cascadeButton.focus = true
+
+        Keys.onUpPressed: {
+            if (windowListView.count) {
+                windowListView.currentIndex = (windowListView.count - 1);
+                windowListView.forceActiveFocus();
+            }
+        }
+
+        Keys.onDownPressed: {
+            if (windowListView.count) {
+                windowListView.currentIndex = 0;
+                windowListView.forceActiveFocus();
+            }
+        }
+
+        Keys.onLeftPressed: {
+            if (windowListView.count) {
+                windowListView.currentIndex = 0;
+                windowListView.forceActiveFocus();
+            }
+        }
+
+        Keys.onRightPressed: {
+            if (windowListView.count) {
+                windowListView.currentIndex = 0;
+                windowListView.forceActiveFocus();
+            }
         }
     }
 }
+

@@ -55,6 +55,8 @@ CaffeinePlus::CaffeinePlus(QObject *parent)
             }
         }
     );
+
+    listenWindows();
 }
 
 CaffeinePlus::~CaffeinePlus() = default;
@@ -155,5 +157,77 @@ void CaffeinePlus::releaseInhibition(const QString &appName)
     	    m_apps.removeOne(m_apps[i]);
     	}
     }
+}
+
+//void CaffeinePlus::saveInhibition(const QString &appName, const QString &reason)
+//{
+//
+//}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+void CaffeinePlus::listenWindows()
+{
+//	QList<WId> windows = KWindowSystem::stackingOrder();
+//	int size = windows.count();
+
+    qDebug() << "caffeine-plus::listenWindows ";
+	connect(KWindowSystem::self(), SIGNAL(windowAdded(WId)), this, SLOT(windowAdded(WId)));
+	connect(KWindowSystem::self(), SIGNAL(windowChanged (WId,NET::Properties,NET::Properties2)), this, SLOT(windowChanged (WId,NET::Properties,NET::Properties2)));
+	connect(KWindowSystem::self(), SIGNAL(windowRemoved(WId)), this, SLOT(windowRemoved(WId)));
+}
+
+void CaffeinePlus::inhibitFullscreen(WId id, bool isFullScreen)
+{
+//	QList<WId> windows = KWindowSystem::stackingOrder();
+//	int size = windows.count();
+	bool needInhibit = isFullScreen;
+	QString appName = QString("%1-fullscreen").arg(id);
+
+    qDebug() << "caffeine-plus::inhibitFullscreen ";
+
+    for (int i=0; i < m_apps.count(); ++i)
+    {
+    	if ( m_apps[i].first == appName ) {
+    		needInhibit = false;
+    		if ( ! isFullScreen )
+    			releaseInhibition(appName);
+			break;
+    	}
+    }
+    if ( needInhibit )
+    	addInhibition(appName, QString("inhibit by caffeine plus for fullscreen"));
+}
+
+void CaffeinePlus::windowChanged (WId id, NET::Properties properties, NET::Properties2 properties2)
+{
+    KWindowInfo info(id, NET::WMState|NET::WMName);
+//	KWindowInfo info(id, NET::WMState|NET::WMName|NET::WMDesktop, NET::WM2DesktopFileName);
+
+    qDebug() << "caffeine-plus::windowChanged " << info.name() << id << info.hasState(NET::FullScreen);
+
+    if (info.valid() ) {
+    	inhibitFullscreen(id, info.hasState(NET::FullScreen));
+//        if ((m_demandsAttention == 0) && info.hasState(NET::DemandsAttention)) {
+//            m_demandsAttention = id;
+//            emit windowInAttention(true);
+//        } else if ((m_demandsAttention == id) && !info.hasState(NET::DemandsAttention)) {
+//            m_demandsAttention = 0;
+//            emit windowInAttention(false);
+//        }
+    } else {
+        qDebug() << "caffeine-plus::windowChanged info.valid false:  " << info.name() << id;
+
+    }
+}
+
+void CaffeinePlus::windowRemoved (WId id)
+{
+    qDebug() << "caffeine-plus::windowRemoved " << id;
+}
+
+void CaffeinePlus::windowAdded (WId id)
+{
+    qDebug() << "caffeine-plus::windowAdded ";
 }
 ///////////////////////////////////////////////////////

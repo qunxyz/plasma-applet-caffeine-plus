@@ -32,7 +32,7 @@ message("CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
 
 add_library(plasmoidplugin SHARED ${plasmoidplugin_SRCS})
 
-target_link_libraries(plasmoidplugin Qt5::Quick KF5::Plasma Qt5::DBus)
+target_link_libraries(plasmoidplugin Qt5::Quick KF5::Plasma Qt5::DBus KF5::WindowSystem)
 
 install(TARGETS plasmoidplugin DESTINATION ${QML_INSTALL_DIR}/org/kde/private/CaffeinePlus)
 

@@ -2,6 +2,8 @@
 #define CAFFEINE_PLUS_H
 
 #include <QObject>
+#include <KWindowInfo>
+#include <KWindowSystem>
 
 class QDBusServiceWatcher;
 
@@ -28,10 +30,15 @@ public Q_SLOTS:
 
 private Q_SLOTS:
 	void inhibitionsChanged(const QList<InhibitionInfo> &added, const QStringList &removed);
+	void windowAdded (WId id);
+	void windowChanged (WId id, NET::Properties properties, NET::Properties2 properties2);
+	void windowRemoved (WId id);
 
 private:
 //	void checkInhibition();
 	void update();
+	void inhibitFullscreen(WId id, bool isFullScreen);
+	void listenWindows();
 
 	QDBusServiceWatcher *m_solidPowerServiceWatcher;
 	bool m_serviceRegistered = false;
