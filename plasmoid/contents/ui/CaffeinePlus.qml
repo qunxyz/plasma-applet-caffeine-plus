@@ -35,15 +35,12 @@ Item {
         }
     }
 
-    function test() {
-
-        var c = getCaffeinePlus()
-        if (c) {
-            var result = c.checkInhibition()
-            console.log(result)
-
+    function toggle(flag) {
+        var inst = getInstance()
+        if (flag) {
+            inst.addInhibition("user", "inhibit by caffeine plus")
         } else {
-            console.exception('ERROR: get name from plugin - Caffeine Plus not available')
+            inst.releaseInhibition("user")
         }
     }
 }

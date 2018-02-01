@@ -23,30 +23,36 @@ Item {
 		console.log("#############enableNotifications")
 		console.log(plasmoid.configuration.enableNotifications)
 		console.log("#############enableRestore")
-		console.log(plasmoid.configuration.enableRestore)
-		console.log("#############iconActive")
-		console.log(plasmoid.configuration.iconActive)
-		console.log("#############iconInactive")
-		console.log(plasmoid.configuration.iconInactive)
-		console.log("#############isInhibited")
-		var inst = caffeinePlus.getInstance()
-		if ( inst ) {
-			console.log(inst.isInhibited())
-		} else {
-			console.log("error happened")
-		}
+
+		caffeinePlus.toggle(plasmoid.configuration.enableRestore)
     }
     Plasmoid.preferredRepresentation: Plasmoid.compactRepresentation
     Plasmoid.compactRepresentation: PlasmaCore.IconItem {
+    	id: sysTray
         source: icon
         width: units.iconSizes.medium
         height: units.iconSizes.medium
         active: mouseArea.containsMouse
 
+        function toggleIcon() {
+			var inst = caffeinePlus.getInstance()
+			if ( inst.isInhibited() ) {
+            	//console.log("#####################isInhibited true#############################")
+            	if ( plasmoid.configuration.enableRestore ) {
+					sysTray.source = plasmoid.configuration.iconUserActive
+            	} else {
+					sysTray.source = plasmoid.configuration.iconActive
+            	}
+			} else {
+            	//console.log("#####################isInhibited false#############################")
+				sysTray.source = plasmoid.configuration.iconInactive
+			}
+        }
+
         PlasmaCore.ToolTipArea {
             anchors.fill: parent
             icon: parent.source
-            mainText: title
+            mainText: "testing title"
         }
 
         MouseArea {
@@ -54,14 +60,17 @@ Item {
             anchors.fill: parent
             onClicked: {
             	plasmoid.expanded = !plasmoid.expanded
-            	console.log("############################################################")
-            	if (parent.source == plasmoid.configuration.iconActive) {
-            		parent.source = plasmoid.configuration.iconInactive
-            	} else {
-            		parent.source = plasmoid.configuration.iconActive
-            	}
             }
             hoverEnabled: true
+        }
+
+        Timer {
+        	id: textTimer
+        	interval: 1000
+        	repeat: true
+        	running: true
+        	triggeredOnStart: true
+        	onTriggered: sysTray.toggleIcon()
         }
     }
 
@@ -90,9 +99,10 @@ Item {
                 right: parent.right
                 bottom: parent.bottom
             }
-            initialPage: Qt.createComponent("Menu.qml")
+            initialPage: Qt.createComponent("list.qml")
         }
     }
+
 	CaffeinePlus {
         id: caffeinePlus
     }

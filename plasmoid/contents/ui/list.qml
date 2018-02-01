@@ -1,6 +1,5 @@
 /*
 *   Copyright (C) 2011 by Daker Fernandes Pinheiro <dakerfp@gmail.com>
-*   Copyright (C) 2011 by Marco Martin <mart@kde.org>
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU Library General Public License as
@@ -21,7 +20,22 @@
 import QtQuick 2.0
 import org.kde.plasma.components 2.0
 
+
 Page {
+    tools: ToolBarLayout {
+        spacing: 5
+        CheckBox {
+        	id: enableRestore
+            text: "Inhibit suspend"
+            onCheckedChanged: {
+            	plasmoid.configuration.enableRestore = checked
+			}
+			onClicked: caffeinePlus.toggle(enableRestore.checked)
+			Component.onCompleted: {
+				enableRestore.checked = plasmoid.configuration.enableRestore
+			}
+        }
+    }
     ListView {
         id: pageSelector
         clip: true
@@ -64,6 +78,19 @@ Page {
             //onClicked: pageStack.push(Qt.createComponent(page))
         }
     }
+
+    ScrollBar {
+        id: horizontalScrollBar
+
+        flickableItem: pageSelector
+        orientation: Qt.Horizontal
+        anchors {
+            left: parent.left
+            right: verticalScrollBar.left
+            bottom: parent.bottom
+        }
+    }
+
     ScrollBar {
         id: verticalScrollBar
 
@@ -72,22 +99,7 @@ Page {
         anchors {
             top: parent.top
             right: parent.right
-            bottom: parent.bottom
+            bottom: horizontalScrollBar.top
         }
     }
-    CheckBox {
-		width: 140
-		height: 30
-		text: "Check Box 1"
-
-		onCheckedChanged: {
-			if (checked)
-				console.log("CheckBox checked");
-			else
-				console.log("CheckBox unchecked");
-		}
-		onClicked: {
-			console.log("CheckBox clicked");
-		}
-	}
 }

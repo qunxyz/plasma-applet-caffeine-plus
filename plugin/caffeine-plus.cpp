@@ -5,6 +5,7 @@
 #include <QDBusConnection>
 #include <QDBusMessage>
 #include <QDBusMetaType>
+#include <QMetaObject>
 #include <QDBusPendingCallWatcher>
 #include <QDBusPendingReply>
 #include <QDBusServiceWatcher>
@@ -84,7 +85,6 @@ void CaffeinePlus::inhibitionsChanged(const QList<InhibitionInfo> &added, const 
     Q_UNUSED(added)
     Q_UNUSED(removed)
 
-
     checkInhibition();
 }
 
@@ -107,5 +107,53 @@ void CaffeinePlus::checkInhibition()
             m_inhibited = reply.value();
         }
     );
+}
+
+void CaffeinePlus::addInhibition(const QString &appName, const QString &reason)
+{
+    QDBusMessage msg = QDBusMessage::createMethodCall(s_solidPowerService,
+                                                      s_solidPath,
+                                                      s_solidPowerService,
+                                                      QStringLiteral("AddInhibition"));
+    msg << (uint) 5 << appName << reason; // PowerDevil::PolicyAgent::RequiredPolicy::ChangeScreenSettings | PowerDevil::PolicyAgent::RequiredPolicy::InterruptSession
+    QDBusPendingReply<uint> pendingReply = QDBusConnection::sessionBus().asyncCall(msg);
+    QDBusPendingCallWatcher *callWatcher = new QDBusPendingCallWatcher(pendingReply, this);
+    connect(callWatcher, &QDBusPendingCallWatcher::finished, this,
+        [this, appName](QDBusPendingCallWatcher *self) {
+            QDBusPendingReply<uint> reply = *self;
+            self->deleteLater();
+            if (!reply.isValid()) {
+            	qDebug() << "Inhibition error: " << reply.error().message();
+                return;
+            }
+            m_apps.append(qMakePair(appName,reply.value()));
+        }
+    );
+}
+
+void CaffeinePlus::releaseInhibition(const QString &appName)
+{
+    for ( int i=0; i < m_apps.count(); ++i )
+    {
+    	if ( m_apps[i].first == appName ) {
+    	    QDBusMessage msg = QDBusMessage::createMethodCall(s_solidPowerService,
+    	                                                      s_solidPath,
+    	                                                      s_solidPowerService,
+    	                                                      QStringLiteral("ReleaseInhibition"));
+    	    msg << m_apps[i].second;
+    	    QDBusPendingReply<bool> pendingReply = QDBusConnection::sessionBus().asyncCall(msg);
+    	    QDBusPendingCallWatcher *callWatcher = new QDBusPendingCallWatcher(pendingReply, this);
+    	    connect(callWatcher, &QDBusPendingCallWatcher::finished, this,
+    	        [this](QDBusPendingCallWatcher *self) {
+    	            QDBusPendingReply<bool> reply = *self;
+    	            self->deleteLater();
+    	            if (!reply.isValid()) {
+    	                return;
+    	            }
+    	        }
+    	    );
+    	    m_apps.removeOne(m_apps[i]);
+    	}
+    }
 }
 ///////////////////////////////////////////////////////

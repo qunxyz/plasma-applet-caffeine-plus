@@ -26,6 +26,7 @@ Item {
     property alias cfg_useDefaultIcons: useDefaultIcons.checked
     property string cfg_iconActive: plasmoid.configuration.iconActive
     property string cfg_iconInactive: plasmoid.configuration.iconInactive
+    property string cfg_iconUserActive: plasmoid.configuration.iconUserActive
 
     Label {
         text: i18n('Plasmoid version') + ': 1.0.18'
@@ -93,6 +94,18 @@ Item {
             currentIcon: cfg_iconInactive
             defaultIcon: 'caffeine-plus-off'
             onIconChanged: cfg_iconInactive = iconName
+            enabled: !useDefaultIcons.checked
+        }
+
+        Label {
+            text: i18n("UserActive:")
+            Layout.alignment: Qt.AlignRight
+        }
+
+        IconPicker {
+            currentIcon: cfg_iconUserActive
+            defaultIcon: 'user-caffeine-plus-on'
+            onIconChanged: cfg_iconUserActive = iconName
             enabled: !useDefaultIcons.checked
         }
     }

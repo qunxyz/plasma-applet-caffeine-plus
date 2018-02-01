@@ -6,6 +6,7 @@
 class QDBusServiceWatcher;
 
 using InhibitionInfo = QPair<QString, QString>;
+using InhibitionInfoCaffeinePlus = QPair<QString, uint>;
 
 class CaffeinePlus : public QObject
 {
@@ -22,6 +23,9 @@ public Q_SLOTS:
     	return m_inhibited;
     }
 
+    void addInhibition(const QString &appName, const QString &reason);
+    void releaseInhibition(const QString &appName);
+
 private Q_SLOTS:
 	void inhibitionsChanged(const QList<InhibitionInfo> &added, const QStringList &removed);
 
@@ -32,6 +36,7 @@ private:
 	QDBusServiceWatcher *m_solidPowerServiceWatcher;
 	bool m_serviceRegistered = false;
 	bool m_inhibited = false;
+	QList<InhibitionInfoCaffeinePlus> m_apps; // for caffeine, first item is app_name, second is cookie
 };
 
 #endif // CAFFEINE_PLUS_H

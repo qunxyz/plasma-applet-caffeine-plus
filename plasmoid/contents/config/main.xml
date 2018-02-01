@@ -24,6 +24,9 @@
         <entry name="iconInactive" type="String">
             <default>caffeine-plus-off</default>
         </entry>
+        <entry name="iconUserActive" type="String">
+            <default>user-caffeine-plus-on</default>
+        </entry>
     </group>
 
     <group name="Advanced">
