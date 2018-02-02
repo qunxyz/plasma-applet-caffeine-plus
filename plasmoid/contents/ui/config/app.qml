@@ -1,14 +1,17 @@
+import QtQuick 2.2
 import QtQuick.Controls 1.3
-import org.kde.plasma.components 2.0 as PlasmaComponents
+import QtQuick.Layouts 1.1
+import org.kde.plasma.components 2.0
 
-PlasmaComponents.ButtonRow {
+ButtonRow {
     exclusive: true
     spacing: 0
 
     ToolButton {
     	visible: false
     }
-    ToolButton {
+    Button {}
+    Button {
     	text: "Remove"
     	onClicked: {
     		var index = advancedConfig.cfg_userApps.indexOf(parent.children[0].text)

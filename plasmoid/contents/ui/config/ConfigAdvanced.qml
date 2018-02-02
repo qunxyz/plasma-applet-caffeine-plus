@@ -22,6 +22,7 @@ import QtQuick.Window 2.0
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 2.0 as PlasmaComponents
 import org.kde.plasma.extras 2.0 as PlasmaExtras
+import org.kde.private.CaffeinePlus 1.0 as CaffeinePlus
 
 Item {
     id: advancedConfig
@@ -40,47 +41,14 @@ Item {
 				}
         	}
         	if (isContinue) continue
+        	var info = caffeinePlus.launcherData(user_app)
             var component = Qt.createComponent("app.qml")
 			var buttonRow = component.createObject(container)
+        	console.log(buttonRow.children.length)
 			buttonRow.children[0].text = user_app
+			buttonRow.children[1]["iconSource"] = info["iconName"]
+			buttonRow.children[1]["text"] = info["applicationName"]
 		}
-    }
-
-    FileDialog {
-        id: fileDialog
-        visible: false
-        modality: Qt.WindowModal
-        title: "Choose some files"
-        selectExisting: true
-        selectMultiple: false
-        selectFolder: false
-        nameFilters: [ "Desktop files (*.desktop)", "All files (*)" ]
-        selectedNameFilter: "All files (*)"
-        sidebarVisible: true
-        onAccepted: {
-            console.log("Accepted: " + fileUrls)
-            console.log("container: " + container.children.length)
-            if ( container.children.length )
-            	console.log("container button text: " + container.children[0].children[0].text)
-            var userApps = new Array()
-            for (var i = 0; i < fileUrls.length; i++) {
-            	var fileUrl = fileUrls[i]
-            	var isContinue = false
-            	for (var j = 0; j < container.children.length; j++) {
-            		if (fileUrl == container.children[j].children[0].text) {
-						isContinue = true
-						break
-					}
-            	}
-            	if (isContinue) continue
-	            var component = Qt.createComponent("app.qml")
-				var buttonRow = component.createObject(container)
-				buttonRow.children[0].text = fileUrl
-				cfg_userApps.push(fileUrl)
-			}
-			advancedConfig.configurationChanged()
-        }
-        onRejected: { console.log("Rejected") }
     }
 
     PlasmaExtras.ScrollArea {
@@ -88,7 +56,7 @@ Item {
         width: parent.width
         Flickable {
             id: flickable
-            contentWidth: container.width
+            //contentWidth: container.width
             contentHeight: container.height
             clip: true
             anchors.fill: parent
@@ -114,8 +82,32 @@ Item {
             id: buttonRow
             Button {
                 text: "Add app need inhibit screensaver"
-                onClicked: fileDialog.open()
+                onClicked: caffeinePlus.addLauncher() //fileDialog.open()
             }
+        }
+    }
+    CaffeinePlus.CaffeinePlus{
+        id: caffeinePlus
+        onLauncherAdded: {
+        	console.log("###########################################")
+        	console.log(url)
+        	var userApps = new Array()
+        	var isExists = false
+        	for (var j = 0; j < container.children.length; j++) {
+        		if (url == container.children[j].children[0].text) {
+					isExists = true
+					break
+				}
+        	}
+        	if (isExists) return
+        	var info = caffeinePlus.launcherData(url)
+            var component = Qt.createComponent("app.qml")
+			var buttonRow = component.createObject(container)
+			buttonRow.children[0].text = url
+			buttonRow.children[1]["iconSource"] = info["iconName"]
+			buttonRow.children[1]["text"] = info["applicationName"]
+			cfg_userApps.push(url)
+			advancedConfig.configurationChanged()
         }
     }
 }

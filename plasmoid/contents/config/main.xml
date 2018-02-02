@@ -28,7 +28,7 @@
             <default>user-caffeine-plus-on</default>
         </entry>
         <entry name="enableRestore" type="Bool">
-            <default>true</default>
+            <default>false</default>
         </entry>
         <entry name="enableNotifications" type="Bool">
             <default>true</default>

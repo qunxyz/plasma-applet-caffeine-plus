@@ -17,6 +17,7 @@ endfunction()
 pkg_check_modules(DBUS dbus-1)
 pkg_check_variable(dbus-1 interfaces_dir)
 message("Path: ${DBUS_1_INTERFACES_DIR}")
+find_package(KF5KIO)
 
 set(plasmoidplugin_SRCS
     plasmoidplugin.cpp
@@ -32,7 +33,7 @@ message("CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
 
 add_library(plasmoidplugin SHARED ${plasmoidplugin_SRCS})
 
-target_link_libraries(plasmoidplugin Qt5::Quick KF5::Plasma Qt5::DBus KF5::WindowSystem)
+target_link_libraries(plasmoidplugin Qt5::Quick KF5::Plasma Qt5::DBus KF5::WindowSystem Qt5::Core Qt5::Qml KF5::KIOCore KF5::KIOWidgets)
 
 install(TARGETS plasmoidplugin DESTINATION ${QML_INSTALL_DIR}/org/kde/private/CaffeinePlus)
 

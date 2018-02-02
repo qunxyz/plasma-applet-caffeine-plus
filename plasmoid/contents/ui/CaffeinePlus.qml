@@ -43,4 +43,9 @@ Item {
             inst.releaseInhibition("user")
         }
     }
+
+    function addLauncher() {
+        var inst = getInstance()
+        inst.addLauncher(true)
+    }
 }
