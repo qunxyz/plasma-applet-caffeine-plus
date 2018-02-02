@@ -27,14 +27,17 @@
         <entry name="iconUserActive" type="String">
             <default>user-caffeine-plus-on</default>
         </entry>
-    </group>
-
-    <group name="Advanced">
         <entry name="enableRestore" type="Bool">
             <default>true</default>
         </entry>
         <entry name="enableNotifications" type="Bool">
             <default>true</default>
+        </entry>
+    </group>
+
+    <group name="Advanced">
+        <entry name="userApps" type="StringList">
+            <default></default>
         </entry>
     </group>
 

@@ -23,6 +23,8 @@ Item {
 		console.log("#############enableNotifications")
 		console.log(plasmoid.configuration.enableNotifications)
 		console.log("#############enableRestore")
+        plasmoid.setAction("addLauncher", i18n("Add Launcher..."), "list-add");
+
 
 		caffeinePlus.toggle(plasmoid.configuration.enableRestore)
     }

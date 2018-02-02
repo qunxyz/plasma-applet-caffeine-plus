@@ -27,6 +27,8 @@ Item {
     property string cfg_iconActive: plasmoid.configuration.iconActive
     property string cfg_iconInactive: plasmoid.configuration.iconInactive
     property string cfg_iconUserActive: plasmoid.configuration.iconUserActive
+    property alias cfg_enableRestore: enableRestore.checked
+    property alias cfg_enableNotifications: enableNotifications.checked
 
     Label {
         text: i18n('Plasmoid version') + ': 1.0.18'
@@ -53,6 +55,18 @@ Item {
             id: enableFullscreen
             text: i18n('Enable When a fullscreen application is running')
             Layout.columnSpan: 2
+        }
+
+        CheckBox {
+            id: enableRestore
+            text: i18n('Restore state across reboots')
+            Layout.columnSpan: parent.columns
+        }
+
+        CheckBox {
+            id: enableNotifications
+            text: i18n('Enable notifications')
+            Layout.columnSpan: parent.columns
         }
 
         Item {

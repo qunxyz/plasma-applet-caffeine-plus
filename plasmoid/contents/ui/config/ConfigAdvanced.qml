@@ -17,54 +17,105 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.3
 import QtQuick.Layouts 1.1
+import QtQuick.Dialogs 1.0
+import QtQuick.Window 2.0
 import org.kde.plasma.core 2.0 as PlasmaCore
+import org.kde.plasma.components 2.0 as PlasmaComponents
+import org.kde.plasma.extras 2.0 as PlasmaExtras
 
 Item {
     id: advancedConfig
+    property var cfg_userApps:[]
+    signal configurationChanged
 
-    property string versionString: 'N/A'
-    property string modeString: ''
-
-    property alias cfg_enableRestore: enableRestore.checked
-    property alias cfg_enableNotifications: enableNotifications.checked
-
-    PlasmaCore.DataSource {
+	Component.onCompleted: {
+		var user_apps = cfg_userApps
+		for (var i = 0; i < user_apps.length; i++) {
+        	var user_app = user_apps[i]
+        	var isContinue = false
+        	for (var j = 0; j < container.children.length; j++) {
+        		if (user_app == container.children[j].children[0].text) {
+					isContinue = true
+					break
+				}
+        	}
+        	if (isContinue) continue
+            var component = Qt.createComponent("app.qml")
+			var buttonRow = component.createObject(container)
+			buttonRow.children[0].text = user_app
+		}
     }
 
-    Label {
-        id: versionStringLabel
-        text: versionString
-        anchors.right: parent.right
+    FileDialog {
+        id: fileDialog
+        visible: false
+        modality: Qt.WindowModal
+        title: "Choose some files"
+        selectExisting: true
+        selectMultiple: false
+        selectFolder: false
+        nameFilters: [ "Desktop files (*.desktop)", "All files (*)" ]
+        selectedNameFilter: "All files (*)"
+        sidebarVisible: true
+        onAccepted: {
+            console.log("Accepted: " + fileUrls)
+            console.log("container: " + container.children.length)
+            if ( container.children.length )
+            	console.log("container button text: " + container.children[0].children[0].text)
+            var userApps = new Array()
+            for (var i = 0; i < fileUrls.length; i++) {
+            	var fileUrl = fileUrls[i]
+            	var isContinue = false
+            	for (var j = 0; j < container.children.length; j++) {
+            		if (fileUrl == container.children[j].children[0].text) {
+						isContinue = true
+						break
+					}
+            	}
+            	if (isContinue) continue
+	            var component = Qt.createComponent("app.qml")
+				var buttonRow = component.createObject(container)
+				buttonRow.children[0].text = fileUrl
+				cfg_userApps.push(fileUrl)
+			}
+			advancedConfig.configurationChanged()
+        }
+        onRejected: { console.log("Rejected") }
     }
-    Label {
-        text: i18n('CaffeinePlus version') + ': '
-        anchors.right: versionStringLabel.left
-    }
 
-    PlasmaCore.DataSource {
-        id: getOptionsDS
-        engine: 'executable'
+    PlasmaExtras.ScrollArea {
+        anchors.fill: parent
+        width: parent.width
+        Flickable {
+            id: flickable
+            contentWidth: container.width
+            contentHeight: container.height
+            clip: true
+            anchors.fill: parent
 
-        connectedSources: ['caffeinePlus -V']
-
-        onNewData: {
+            Item {
+                width: Math.max(flickable.width, container.width)
+                height: container.height
+                Column {
+                    id: container
+                    spacing: 20
+                }
+            }
         }
     }
 
-	GridLayout {
-        Layout.fillWidth: true
-        columns: 4
-
-        CheckBox {
-            id: enableRestore
-            text: i18n('Restore state across reboots')
-            Layout.columnSpan: parent.columns
+    Rectangle {
+        id: bottomBar
+        anchors {
+            bottom: parent.bottom
         }
-
-        CheckBox {
-            id: enableNotifications
-            text: i18n('Enable notifications')
-            Layout.columnSpan: parent.columns
+        height: buttonRow.height * 1.2
+        Row {
+            id: buttonRow
+            Button {
+                text: "Add app need inhibit screensaver"
+                onClicked: fileDialog.open()
+            }
         }
-	}
+    }
 }
