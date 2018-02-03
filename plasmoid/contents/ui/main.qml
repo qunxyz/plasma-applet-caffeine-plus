@@ -153,7 +153,6 @@ Item {
                 right: parent.right
                 bottom: parent.bottom
             }
-            //initialPage: Qt.createComponent("list.qml")
             initialPage: Qt.createComponent("windows.qml")
         }
     }
