@@ -23,15 +23,11 @@ public:
 	CaffeinePlus(QObject *parent = nullptr);
 	virtual ~CaffeinePlus();
 
-	///////////////////////////////////////////////////
-
 	Q_INVOKABLE QVariantMap launcherData(const QUrl &url);
-
 	Q_INVOKABLE void addLauncher(bool isPopup = false);
 
 Q_SIGNALS:
 	void launcherAdded(const QString &url, bool isPopup);
-	///////////////////////////////////////////////////
 
 public Q_SLOTS:
 	void init(bool enableFullscreen, const QStringList &userApps);

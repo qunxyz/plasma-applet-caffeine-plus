@@ -5,8 +5,6 @@ import org.kde.plasma.plasmoid 2.0
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.private.CaffeinePlus 1.0 as CaffeinePlus
 
-//import "../code/layout.js" as LayoutManager
-
 Item {
 	id: root
 	property var icon: plasmoid.configuration.useDefaultIcons ? plasmoid.configuration.defaultIconInactive : plasmoid.configuration.iconInactive
@@ -15,50 +13,12 @@ Item {
 
     Plasmoid.switchWidth: 300
     Plasmoid.switchHeight: 400
-/////////////////////////////////////////////////////////////
-    //Layout.minimumWidth: LayoutManager.minimumWidth()
-    //Layout.minimumHeight: LayoutManager.minimumHeight()
-    //Layout.preferredWidth: LayoutManager.preferredWidth()
-    //Layout.preferredHeight: LayoutManager.preferredHeight()
-/*
-    function action_addLauncher()
-    {
-        caffeinePlus.addLauncher();
-    }*/
-/*
-    PlasmaCore.Dialog {
-        id: popup
-        type: PlasmaCore.Dialog.PopupMenu
-        flags: Qt.WindowStaysOnTopHint
-        hideOnWindowDeactivate: true
-        location: plasmoid.location
-        visualParent: vertical ? popupArrow : root
 
-        mainItem: Popup { }
-    }*/
-///////////////////////////////////////////
 	Component.onCompleted: {
 		root.userApps = plasmoid.configuration.userApps
 		root.enableFullscreen = plasmoid.configuration.enableFullscreen
 
-		//console.log("#############autostart")
-		//console.log(plasmoid.configuration.autostart)
-		console.log("#############enableFullscreen")
-		console.log(plasmoid.configuration.enableFullscreen)
-		console.log("#############useDefaultIcons")
-		console.log(plasmoid.configuration.useDefaultIcons)
-		//console.log("#############isShowIndicator")
-		//console.log(plasmoid.configuration.isShowIndicator)
-		//console.log("#############enableNotifications")
-		//console.log(plasmoid.configuration.enableNotifications)
-		console.log("#############enableRestore")
-		console.log(plasmoid.configuration.enableRestore)
-		console.log("#############userApps")
-		console.log(plasmoid.configuration.userApps)
 		caffeinePlus.init(plasmoid.configuration.enableFullscreen, plasmoid.configuration.userApps)
-        //plasmoid.setAction("addLauncher", i18n("Add Launcher..."), "list-add");//////////////////////////////
-
-
 		caffeinePlus.toggle(plasmoid.configuration.enableRestore)
     }
     Plasmoid.preferredRepresentation: Plasmoid.compactRepresentation
@@ -106,7 +66,7 @@ Item {
         PlasmaCore.ToolTipArea {
             anchors.fill: parent
             icon: parent.source
-            mainText: "Caffeine Plus"
+            mainText: i18n("Caffeine Plus")
         }
 
         MouseArea {
@@ -161,7 +121,7 @@ Item {
 
 	    function toggle(flag) {
 	        if (flag) {
-	            caffeinePlus.addInhibition("user", "inhibit by caffeine plus")
+	            caffeinePlus.addInhibition("user", i18n("inhibit by caffeine plus"))
 	        } else {
 	            caffeinePlus.releaseInhibition("user")
 	        }

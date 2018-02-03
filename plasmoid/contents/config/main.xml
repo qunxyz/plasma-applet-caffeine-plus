@@ -6,13 +6,6 @@
     <kcfgfile name=""/>
 
     <group name="General">
-    	<!--
-        <entry name="autostart" type="Bool">
-            <default>true</default>
-        </entry>
-        <entry name="isShowIndicator" type="Bool">
-            <default>true</default>
-        </entry> -->
         <entry name="enableFullscreen" type="Bool">
             <default>true</default>
         </entry>
@@ -40,10 +33,6 @@
         <entry name="enableRestore" type="Bool">
             <default>false</default>
         </entry>
-        <!--
-        <entry name="enableNotifications" type="Bool">
-            <default>true</default>
-        </entry> -->
     </group>
 
     <group name="Advanced">

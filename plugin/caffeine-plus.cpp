@@ -86,14 +86,8 @@ void CaffeinePlus::init(bool enableFullscreen, const QStringList &userApps)
 }
 void CaffeinePlus::updateSettings(bool enableFullscreen, const QStringList &userApps)
 {
-	qDebug() << "caffeine-plus::updateSettings";
     m_userApps = userApps;
     m_enableFullscreen = enableFullscreen;
-
-//    QList<WId> windows = KWindowSystem::windows();
-//    for (auto it = windows.cbegin(), end = windows.cend(); it != end; ++it) {
-//    	windowChanged (*it);
-//    }
 
     for ( int i = 0; i < m_apps.count(); ++i ) {
     	bool isCookie;
@@ -121,7 +115,6 @@ void CaffeinePlus::updateSettings(bool enableFullscreen, const QStringList &user
 		);
     }
 
-//    init(enableFullscreen, userApps);
 	QList<WId> windows = KWindowSystem::windows();
 	for (auto it = windows.cbegin(), end = windows.cend(); it != end; ++it) {
 		windowChanged (*it);
@@ -260,8 +253,6 @@ void CaffeinePlus::releaseInhibition(const QString &appName)
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////
-
 void CaffeinePlus::listenWindows()
 {
 	connect(KWindowSystem::self(), SIGNAL(windowAdded(WId)), this, SLOT(windowAdded(WId)));
@@ -315,20 +306,7 @@ void CaffeinePlus::inhibitUserApps(WId id)
     	// Get the name of the file without the extension
     	QString file_name = QFileInfo(item).completeBaseName();
     	QVariantMap item_info = launcherData(item);
-    	/*
-    	qDebug() << "caffeine-plus::inhibitUserApps item: " << "applicationName: " << item_info.value("applicationName")
-    			<< "genericName: " << item_info.value("genericName") << "exec: " << item_info.value("exec")
-				<< "desktop entry: "<< file_name;
-    	qDebug() << "caffeine-plus::inhibitUserApps m_userApps: " << "info.name: " << info.name()
-    			<< "ginfo.name: " << ginfo.name()
-				<< "info desktop entry: " << info.desktopFileName()
-				<< "ginfo desktop entry: " << ginfo.desktopFileName()
-				<< "info role: " << info.windowRole()
-				<< "ginfo role: " << ginfo.windowRole()
-				<< "info class: " << info.windowClassClass()
-				<< "ginfo class: " << ginfo.windowClassClass()
-				<< "info class name: " << info.windowClassName()
-				<< "ginfo class name: " << ginfo.windowClassName();*/
+
     	if ( item_info.value("applicationName") != "" ) {
     		if ( ginfo.name() != "" && ginfo.name() == item_info.value("applicationName") ) {
     			needInhibit = true;
@@ -389,14 +367,11 @@ void CaffeinePlus::windowRemoved (WId id)
 
 void CaffeinePlus::windowAdded (WId id)
 {
-    qDebug() << "caffeine-plus::windowAdded ";
 	inhibitFullscreen(id);
 	inhibitUserApps(id);
 }
-///////////////////////////////////////////////////////
-///////////////////////////////////////////////////////
+
 QVariantMap CaffeinePlus::checkProcessIsInhibited(const QString &id) {
-    qDebug() << "caffeine-plus::checkProcessIsInhibited " << id;
     QString appNameSys = "";
 	QString appNameUserApps = getNameByID(id, true);
 	QString appNameFullScreen = getNameByID(id, false);
@@ -431,7 +406,7 @@ QVariantMap CaffeinePlus::checkProcessIsInhibited(const QString &id) {
         {QStringLiteral("inhibitedSys"), inhibitedSys}
     };
 }
-///////////////////////////////////////////////////////
+
 QVariantMap CaffeinePlus::launcherData(const QUrl &url)
 {
     QString name;

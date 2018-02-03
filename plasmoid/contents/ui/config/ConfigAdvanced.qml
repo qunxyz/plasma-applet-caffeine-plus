@@ -28,18 +28,8 @@ Item {
     id: advancedConfig
     property var cfg_userApps:[]
     signal configurationChanged
-/*
-    onConfigurationChanged: {
-    	console.log("##########onConfigurationChanged###########")
-    	for (var key in advancedConfig) {
-    		console.log(key)
-    	}
-    	//console.log(plasmoid.configuration.userApps)
-    	//caffeinePlus.updateSettings(plasmoid.configuration.enableFullscreen, plasmoid.configuration.userApps)
-    }*/
 
 	Component.onCompleted: {
-		//plasmoid.addEventListener('ConfigChanged', function() {console.log("###############")})
 		var user_apps = cfg_userApps
 		for (var i = 0; i < user_apps.length; i++) {
         	var user_app = user_apps[i]
@@ -66,7 +56,6 @@ Item {
         width: parent.width
         Flickable {
             id: flickable
-            //contentWidth: container.width
             contentHeight: container.height
             clip: true
             anchors.fill: parent
@@ -91,16 +80,14 @@ Item {
         Row {
             id: buttonRow
             Button {
-                text: "Add app need inhibit screensaver"
-                onClicked: caffeinePlus.addLauncher() //fileDialog.open()
+                text: i18n("Add app need inhibit screensaver")
+                onClicked: caffeinePlus.addLauncher()
             }
         }
     }
     CaffeinePlus.CaffeinePlus{
         id: caffeinePlus
         onLauncherAdded: {
-        	console.log("###########################################")
-        	console.log(url)
         	var userApps = new Array()
         	var isExists = false
         	for (var j = 0; j < container.children.length; j++) {

@@ -12,7 +12,7 @@ ButtonRow {
     }
     Button {}
     Button {
-    	text: "Remove"
+    	text: i18n("Remove")
     	onClicked: {
     		var index = advancedConfig.cfg_userApps.indexOf(parent.children[0].text)
     		advancedConfig.cfg_userApps.splice(index, 1)

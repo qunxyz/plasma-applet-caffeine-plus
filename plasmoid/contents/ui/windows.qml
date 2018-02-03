@@ -166,7 +166,7 @@ Item {
 
                     PlasmaComponents.Button {
                     	visible: false
-                    	iconName: plasmoid.configuration.iconActive
+                    	iconName: plasmoid.configuration.useDefaultIcons ? plasmoid.configuration.defaultIconActive : plasmoid.configuration.iconActive
 					}
 
                     PlasmaCore.IconItem {
@@ -189,6 +189,9 @@ Item {
 	                    	if (result["inhibitedFullScreen"] || result["inhibitedUserApps"] || result["inhibitedSys"]) {
 	                    		parent.children[0].visible = true
 	                    		label.color = "green"
+	                    	} else {
+	                    		parent.children[0].visible = false
+	                    		label.color = ""
 	                    	}
 
 	                    	return model.display
@@ -227,7 +230,7 @@ Item {
 
         PlasmaComponents.CheckBox {
         	id: enableRestore
-            text: "Inhibit suspend"
+            text: i18n("Inhibit suspend globally")
             onCheckedChanged: {
             	plasmoid.configuration.enableRestore = checked
 			}

@@ -1,0 +1,81 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR This_file_is_part_of_KDE
+# This file is distributed under the same license as the PACKAGE package.
+# Gordon Yau <qunxyz@gmail.com>, 2018.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Report-Msgid-Bugs-To: https://github.com/qunxyz/plasma-applet-caffeine-plus/issues\n"
+"POT-Creation-Date: 2018-02-03 11:43+0200\n"
+"PO-Revision-Date: 2018-02-03 21:59+0100\n"
+"Last-Translator: Gordon Yau <qunxyz@gmail.com>\n"
+"Language-Team: Gordon Yau <qunxyz@gmail.com>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../plasmoid/contents/ui/main.qml:69
+msgid "Caffeine Plus"
+msgstr "Caffeine Plus"
+
+#: ../plasmoid/contents/ui/main.qml:124
+msgid "inhibit by caffeine plus"
+msgstr "禁止屏保-Caffeine Plus"
+
+#: ../plasmoid/contents/ui/windows.qml:38
+msgid "Show list of opened windows"
+msgstr "窗口列表"
+
+#: ../plasmoid/contents/ui/windows.qml:233
+msgid "Inhibit suspend globally"
+msgstr "全局禁用屏保"
+
+#: ../plasmoid/contents/ui/config/app.qml:15
+msgid "Remove"
+msgstr "删除"
+
+#: ../plasmoid/contents/ui/config/ConfigGeneral.qml:45
+msgid "Plasmoid version"
+msgstr "Plasmoid版本"
+
+#: ../plasmoid/contents/ui/config/ConfigGeneral.qml:55
+msgid "Enable When a fullscreen application is running"
+msgstr "窗口全屏时禁用屏保"
+
+#: ../plasmoid/contents/ui/config/ConfigGeneral.qml:73
+msgid "Use default icons"
+msgstr "默认图标"
+
+#: ../plasmoid/contents/ui/config/ConfigGeneral.qml:79
+msgid "Active:"
+msgstr "激活状态"
+
+#: ../plasmoid/contents/ui/config/ConfigGeneral.qml:91
+msgid "Inactive:"
+msgstr "禁止状态："
+
+#: ../plasmoid/contents/ui/config/ConfigGeneral.qml:103
+msgid "UserActive:"
+msgstr "全局激活状态："
+
+#: ../plasmoid/contents/ui/config/IconPicker.qml:84
+msgid "Choose..."
+msgstr "浏览..."
+
+#: ../plasmoid/contents/ui/config/IconPicker.qml:89
+msgid "Clear Icon"
+msgstr "清除"
+
+#: ../plasmoid/contents/ui/config/ConfigAdvanced.qml:83
+msgid "Add app need inhibit screensaver"
+msgstr "添加需要禁用屏保的程序"
+
+#: ../plasmoid/contents/config/config.qml:22
+msgid "General"
+msgstr "一般选项"
+
+#: ../plasmoid/contents/config/config.qml:27
+msgid "Advanced"
+msgstr "高级选项"

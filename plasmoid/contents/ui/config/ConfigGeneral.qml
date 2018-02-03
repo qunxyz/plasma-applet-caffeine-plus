@@ -21,15 +21,11 @@ import QtQuick.Layouts 1.1
 Item {
 	id: configGeneral
 
-    //property alias cfg_autostart: autostart.checked
-    //property alias cfg_isShowIndicator: isShowIndicator.checked
     property alias cfg_enableFullscreen: enableFullscreen.checked
     property alias cfg_useDefaultIcons: useDefaultIcons.checked
     property string cfg_iconActive: plasmoid.configuration.iconActive
     property string cfg_iconInactive: plasmoid.configuration.iconInactive
     property string cfg_iconUserActive: plasmoid.configuration.iconUserActive
-    property alias cfg_enableRestore: enableRestore.checked
-    //property alias cfg_enableNotifications: enableNotifications.checked
 
     function setIcons() {
     	if (useDefaultIcons.checked) {
@@ -53,36 +49,12 @@ Item {
     GridLayout {
         Layout.fillWidth: true
         columns: 2
-/*
-        CheckBox {
-            id: autostart
-            text: i18n('Autostart')
-            Layout.columnSpan: 2
-        }
-
-        CheckBox {
-            id: isShowIndicator
-            text: i18n('Show Caffeine Plus in top panel')
-            Layout.columnSpan: 2
-        }*/
 
         CheckBox {
             id: enableFullscreen
             text: i18n('Enable When a fullscreen application is running')
             Layout.columnSpan: 2
         }
-
-        CheckBox {
-            id: enableRestore
-            text: i18n('Restore state across reboots')
-            Layout.columnSpan: parent.columns
-        }
-/*
-        CheckBox {
-            id: enableNotifications
-            text: i18n('Enable notifications')
-            Layout.columnSpan: parent.columns
-        }*/
 
         Item {
             width: 2

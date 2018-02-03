@@ -20,5 +20,3 @@ elif [[ -f "${HOME}/.cache/icon-cache.kcache" ]]; then
 fi
 gtk-update-icon-cache
 kbuildsycoca5 --noincremental
-
-./shell-restart.sh &
