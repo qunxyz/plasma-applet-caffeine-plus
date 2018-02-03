@@ -9,7 +9,9 @@ import org.kde.private.CaffeinePlus 1.0 as CaffeinePlus
 
 Item {
 	id: root
-	property var icon: plasmoid.configuration.iconInactive
+	property var icon: plasmoid.configuration.useDefaultIcons ? plasmoid.configuration.defaultIconInactive : plasmoid.configuration.iconInactive
+	property var userApps: []
+	property var enableFullscreen
 
     Plasmoid.switchWidth: 300
     Plasmoid.switchHeight: 400
@@ -36,16 +38,19 @@ Item {
     }*/
 ///////////////////////////////////////////
 	Component.onCompleted: {
-		console.log("#############autostart")
-		console.log(plasmoid.configuration.autostart)
+		root.userApps = plasmoid.configuration.userApps
+		root.enableFullscreen = plasmoid.configuration.enableFullscreen
+
+		//console.log("#############autostart")
+		//console.log(plasmoid.configuration.autostart)
 		console.log("#############enableFullscreen")
 		console.log(plasmoid.configuration.enableFullscreen)
 		console.log("#############useDefaultIcons")
 		console.log(plasmoid.configuration.useDefaultIcons)
-		console.log("#############isShowIndicator")
-		console.log(plasmoid.configuration.isShowIndicator)
-		console.log("#############enableNotifications")
-		console.log(plasmoid.configuration.enableNotifications)
+		//console.log("#############isShowIndicator")
+		//console.log(plasmoid.configuration.isShowIndicator)
+		//console.log("#############enableNotifications")
+		//console.log(plasmoid.configuration.enableNotifications)
 		console.log("#############enableRestore")
 		console.log(plasmoid.configuration.enableRestore)
 		console.log("#############userApps")
@@ -64,26 +69,44 @@ Item {
         height: units.iconSizes.medium
         active: mouseArea.containsMouse
 
+        function isListEqual(list1, list2) {
+        	var str1 = ""
+        	var str2 = ""
+        	for ( var i = 0; i < list1.length; i++ ) {
+        		str1 += list1[i]
+        	}
+        	for ( var i = 0; i < list2.length; i++ ) {
+        		str2 += list2[i]
+        	}
+
+	    	if (str1 != str2) return false
+
+	    	return true
+        }
+
         function toggleIcon() {
-			//var inst = caffeinePlus.getInstance()
-			//if ( inst.isInhibited() ) {
+	    	if ( !sysTray.isListEqual(root.userApps, plasmoid.configuration.userApps)
+	    		|| root.enableFullscreen != plasmoid.configuration.enableFullscreen ) {
+	    		root.userApps = plasmoid.configuration.userApps
+	    		root.enableFullscreen = plasmoid.configuration.enableFullscreen
+	    		caffeinePlus.updateSettings(plasmoid.configuration.enableFullscreen, plasmoid.configuration.userApps)
+	    	}
+
 			if ( caffeinePlus.isInhibited() ) {
-            	//console.log("#####################isInhibited true#############################")
             	if ( plasmoid.configuration.enableRestore ) {
-					sysTray.source = plasmoid.configuration.iconUserActive
+					sysTray.source = plasmoid.configuration.useDefaultIcons ? plasmoid.configuration.defaultIconUserActive : plasmoid.configuration.iconUserActive
             	} else {
-					sysTray.source = plasmoid.configuration.iconActive
+					sysTray.source = plasmoid.configuration.useDefaultIcons ? plasmoid.configuration.defaultIconActive : plasmoid.configuration.iconActive
             	}
 			} else {
-            	//console.log("#####################isInhibited false#############################")
-				sysTray.source = plasmoid.configuration.iconInactive
+				sysTray.source = plasmoid.configuration.useDefaultIcons ? plasmoid.configuration.defaultIconInactive : plasmoid.configuration.iconInactive
 			}
         }
 
         PlasmaCore.ToolTipArea {
             anchors.fill: parent
             icon: parent.source
-            mainText: "testing title"
+            mainText: "Caffeine Plus"
         }
 
         MouseArea {

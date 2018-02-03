@@ -6,12 +6,13 @@
     <kcfgfile name=""/>
 
     <group name="General">
+    	<!--
         <entry name="autostart" type="Bool">
             <default>true</default>
         </entry>
         <entry name="isShowIndicator" type="Bool">
             <default>true</default>
-        </entry>
+        </entry> -->
         <entry name="enableFullscreen" type="Bool">
             <default>true</default>
         </entry>
@@ -27,12 +28,22 @@
         <entry name="iconUserActive" type="String">
             <default>user-caffeine-plus-on</default>
         </entry>
+        <entry name="defaultIconActive" type="String">
+            <default>caffeine-plus-on</default>
+        </entry>
+        <entry name="defaultIconInactive" type="String">
+            <default>caffeine-plus-off</default>
+        </entry>
+        <entry name="defaultIconUserActive" type="String">
+            <default>user-caffeine-plus-on</default>
+        </entry>
         <entry name="enableRestore" type="Bool">
             <default>false</default>
         </entry>
+        <!--
         <entry name="enableNotifications" type="Bool">
             <default>true</default>
-        </entry>
+        </entry> -->
     </group>
 
     <group name="Advanced">

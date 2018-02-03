@@ -11,10 +11,9 @@
 class QDBusServiceWatcher;
 
 using InhibitionInfo = QPair<QString, QString>;
-using InhibitionInfoCaffeinePlus = QPair<QString, uint>;
 
 #define SUFFIX_USER_APP "userApps"
-#define SUFFIX_FULL_SCREEN "fullscreen"
+#define SUFFIX_FULL_SCREEN "fullScreen"
 
 class CaffeinePlus : public QObject
 {
@@ -27,8 +26,6 @@ public:
 	///////////////////////////////////////////////////
 
 	Q_INVOKABLE QVariantMap launcherData(const QUrl &url);
-	Q_INVOKABLE void openUrl(const QUrl &url);
-	Q_INVOKABLE void openExec(const QString &exec);
 
 	Q_INVOKABLE void addLauncher(bool isPopup = false);
 
@@ -38,15 +35,11 @@ Q_SIGNALS:
 
 public Q_SLOTS:
 	void init(bool enableFullscreen, const QStringList &userApps);
+	void updateSettings(bool enableFullscreen, const QStringList &userApps);
 	void checkInhibition();
 
     bool isInhibited() const {
-//    	qDebug() << "caffeine-plus::isInhibited m_inhibited: " << m_inhibited;
-//    	qDebug() << "caffeine-plus::isInhibited m_apps: " << m_apps;
-    	//return m_inhibited;
-    	if (m_apps.count()) return true;
-
-    	return false;
+    	return m_inhibited;
     }
 
     QVariantMap checkProcessIsInhibited(const QString &id);
@@ -57,11 +50,10 @@ public Q_SLOTS:
 private Q_SLOTS:
 	void inhibitionsChanged(const QList<InhibitionInfo> &added, const QStringList &removed);
 	void windowAdded (WId id);
-	void windowChanged (WId id, NET::Properties properties, NET::Properties2 properties2);
+	void windowChanged (WId id);
 	void windowRemoved (WId id);
 
 private:
-//	void checkInhibition();
 	void update();
 	void inhibitFullscreen(WId id);
 	void inhibitUserApps(WId id);
@@ -73,7 +65,6 @@ private:
 	bool m_inhibited = false;
 	bool m_isInited = false;
 	QList<InhibitionInfo> m_apps; // for caffeine, first item is app_name, second is cookie
-	QList<InhibitionInfo> m_sys_apps; // for caffeine, first item is app_name, second is cookie
 
 	QStringList m_userApps; // for caffeine, first item is app_name, second is cookie
 	bool m_enableFullscreen; // for caffeine, first item is app_name, second is cookie

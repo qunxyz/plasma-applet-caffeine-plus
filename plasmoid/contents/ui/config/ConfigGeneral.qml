@@ -19,16 +19,31 @@ import QtQuick.Controls 1.3
 import QtQuick.Layouts 1.1
 
 Item {
+	id: configGeneral
 
-    property alias cfg_autostart: autostart.checked
-    property alias cfg_isShowIndicator: isShowIndicator.checked
+    //property alias cfg_autostart: autostart.checked
+    //property alias cfg_isShowIndicator: isShowIndicator.checked
     property alias cfg_enableFullscreen: enableFullscreen.checked
     property alias cfg_useDefaultIcons: useDefaultIcons.checked
     property string cfg_iconActive: plasmoid.configuration.iconActive
     property string cfg_iconInactive: plasmoid.configuration.iconInactive
     property string cfg_iconUserActive: plasmoid.configuration.iconUserActive
     property alias cfg_enableRestore: enableRestore.checked
-    property alias cfg_enableNotifications: enableNotifications.checked
+    //property alias cfg_enableNotifications: enableNotifications.checked
+
+    function setIcons() {
+    	if (useDefaultIcons.checked) {
+			cfg_iconActive = plasmoid.configuration.defaultIconActive
+			cfg_iconInactive = plasmoid.configuration.defaultIconInactive
+			cfg_iconUserActive = plasmoid.configuration.defaultIconUserActive
+    	} else {
+			cfg_iconActive = plasmoid.configuration.iconActive
+			cfg_iconInactive = plasmoid.configuration.iconInactive
+			cfg_iconUserActive = plasmoid.configuration.iconUserActive
+    	}
+    }
+
+    Component.onCompleted: setIcons()
 
     Label {
         text: i18n('Plasmoid version') + ': 1.0.18'
@@ -38,7 +53,7 @@ Item {
     GridLayout {
         Layout.fillWidth: true
         columns: 2
-
+/*
         CheckBox {
             id: autostart
             text: i18n('Autostart')
@@ -49,7 +64,7 @@ Item {
             id: isShowIndicator
             text: i18n('Show Caffeine Plus in top panel')
             Layout.columnSpan: 2
-        }
+        }*/
 
         CheckBox {
             id: enableFullscreen
@@ -62,12 +77,12 @@ Item {
             text: i18n('Restore state across reboots')
             Layout.columnSpan: parent.columns
         }
-
+/*
         CheckBox {
             id: enableNotifications
             text: i18n('Enable notifications')
             Layout.columnSpan: parent.columns
-        }
+        }*/
 
         Item {
             width: 2
@@ -85,6 +100,7 @@ Item {
             id: useDefaultIcons
             text: i18n('Use default icons')
             Layout.columnSpan: 2
+            onClicked: setIcons()
         }
 
         Label {
@@ -94,7 +110,7 @@ Item {
 
         IconPicker {
             currentIcon: cfg_iconActive
-            defaultIcon: 'caffeine-plus-on'
+            defaultIcon: plasmoid.configuration.defaultIconActive
             onIconChanged: cfg_iconActive = iconName
             enabled: !useDefaultIcons.checked
         }
@@ -106,7 +122,7 @@ Item {
 
         IconPicker {
             currentIcon: cfg_iconInactive
-            defaultIcon: 'caffeine-plus-off'
+            defaultIcon: plasmoid.configuration.defaultIconInactive
             onIconChanged: cfg_iconInactive = iconName
             enabled: !useDefaultIcons.checked
         }
@@ -118,7 +134,7 @@ Item {
 
         IconPicker {
             currentIcon: cfg_iconUserActive
-            defaultIcon: 'user-caffeine-plus-on'
+            defaultIcon: plasmoid.configuration.defaultIconUserActive
             onIconChanged: cfg_iconUserActive = iconName
             enabled: !useDefaultIcons.checked
         }

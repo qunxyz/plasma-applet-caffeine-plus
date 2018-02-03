@@ -28,8 +28,18 @@ Item {
     id: advancedConfig
     property var cfg_userApps:[]
     signal configurationChanged
+/*
+    onConfigurationChanged: {
+    	console.log("##########onConfigurationChanged###########")
+    	for (var key in advancedConfig) {
+    		console.log(key)
+    	}
+    	//console.log(plasmoid.configuration.userApps)
+    	//caffeinePlus.updateSettings(plasmoid.configuration.enableFullscreen, plasmoid.configuration.userApps)
+    }*/
 
 	Component.onCompleted: {
+		//plasmoid.addEventListener('ConfigChanged', function() {console.log("###############")})
 		var user_apps = cfg_userApps
 		for (var i = 0; i < user_apps.length; i++) {
         	var user_app = user_apps[i]

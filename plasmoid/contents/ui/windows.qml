@@ -86,7 +86,6 @@ Item {
 
     PlasmaExtras.ScrollArea {
     	anchors.top: windowPin.bottom
-        //anchors.fill: parent
         width: parent.width
         height: parent.height - windowPin.height
 
@@ -131,25 +130,6 @@ Item {
 
             section.property: virtualDesktopInfo.numberOfDesktops ? "VirtualDesktop" : undefined
             section.criteria: ViewSection.FullString
-            section.delegate: PlasmaComponents.Label {
-                height: root.itemHeight
-                width: root.width
-
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-
-                textFormat: Text.PlainText
-                wrapMode: Text.NoWrap
-                elide: Text.ElideRight
-
-                text: {
-                    if (section > 0) {
-                        return virtualDesktopInfo.desktopNames[section - 1];
-                    }
-
-                    return i18n("On all desktops");
-                }
-            }
 
             delegate: MouseArea {
                 id: item
@@ -172,7 +152,6 @@ Item {
                         windowListView.currentIndex = index;
                     }
                 }
-
                 Row {
                     anchors.left: parent.left
                     anchors.leftMargin: highlightItemSvg.margins.left
@@ -189,7 +168,6 @@ Item {
                     	visible: false
                     	iconName: plasmoid.configuration.iconActive
 					}
-
 
                     PlasmaCore.IconItem {
                         id: icon
@@ -208,8 +186,10 @@ Item {
                         id: label
 	                    function check(model) {
 	                    	var result = caffeinePlus.checkProcessIsInhibited(model["LegacyWinIdList"])
-	                    	if (result["inhibitedFullScreen"] || result["inhibitedUserApps"] || result["inhibitedSys"])
+	                    	if (result["inhibitedFullScreen"] || result["inhibitedUserApps"] || result["inhibitedSys"]) {
 	                    		parent.children[0].visible = true
+	                    		label.color = "green"
+	                    	}
 
 	                    	return model.display
 	                    }
@@ -264,7 +244,6 @@ Item {
         anchors.rightMargin: windowListView.overflowing ? units.gridUnit : 0
 
         width: Math.round(units.gridUnit * 1.25)
-        //height: width
 
         iconSource: "window-pin"
 
