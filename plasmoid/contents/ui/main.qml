@@ -145,12 +145,4 @@ Item {
 	        }
 	    }
     }
-	/*
-	CaffeinePlus {
-        id: caffeinePlus
-        onLauncherAdded: {
-        	console.log("###########################################")
-        	console.log(ur)
-        }
-    }*/
 }

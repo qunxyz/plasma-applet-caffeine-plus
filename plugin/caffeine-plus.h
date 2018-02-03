@@ -2,6 +2,7 @@
 #define CAFFEINE_PLUS_H
 
 #include <QUrl>
+#include <QDebug>
 #include <QObject>
 #include <QVariantMap>
 #include <KWindowInfo>
@@ -11,6 +12,9 @@ class QDBusServiceWatcher;
 
 using InhibitionInfo = QPair<QString, QString>;
 using InhibitionInfoCaffeinePlus = QPair<QString, uint>;
+
+#define SUFFIX_USER_APP "userApps"
+#define SUFFIX_FULL_SCREEN "fullscreen"
 
 class CaffeinePlus : public QObject
 {
@@ -37,8 +41,15 @@ public Q_SLOTS:
 	void checkInhibition();
 
     bool isInhibited() const {
-    	return m_inhibited;
+//    	qDebug() << "caffeine-plus::isInhibited m_inhibited: " << m_inhibited;
+//    	qDebug() << "caffeine-plus::isInhibited m_apps: " << m_apps;
+    	//return m_inhibited;
+    	if (m_apps.count()) return true;
+
+    	return false;
     }
+
+    QVariantMap checkProcessIsInhibited(const QString &id);
 
     void addInhibition(const QString &appName, const QString &reason);
     void releaseInhibition(const QString &appName);
@@ -52,15 +63,17 @@ private Q_SLOTS:
 private:
 //	void checkInhibition();
 	void update();
-	void inhibitFullscreen(WId id, bool isFullScreen);
+	void inhibitFullscreen(WId id);
 	void inhibitUserApps(WId id);
 	void listenWindows();
+	QString getNameByID(const QString &id, bool inhibitType);
 
 	QDBusServiceWatcher *m_solidPowerServiceWatcher;
 	bool m_serviceRegistered = false;
 	bool m_inhibited = false;
 	bool m_isInited = false;
-	QList<InhibitionInfoCaffeinePlus> m_apps; // for caffeine, first item is app_name, second is cookie
+	QList<InhibitionInfo> m_apps; // for caffeine, first item is app_name, second is cookie
+	QList<InhibitionInfo> m_sys_apps; // for caffeine, first item is app_name, second is cookie
 
 	QStringList m_userApps; // for caffeine, first item is app_name, second is cookie
 	bool m_enableFullscreen; // for caffeine, first item is app_name, second is cookie

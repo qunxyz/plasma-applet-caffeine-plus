@@ -185,6 +185,12 @@ Item {
 
                     LayoutMirroring.enabled: (Qt.application.layoutDirection == Qt.RightToLeft)
 
+                    PlasmaComponents.Button {
+                    	visible: false
+                    	iconName: plasmoid.configuration.iconActive
+					}
+
+
                     PlasmaCore.IconItem {
                         id: icon
 
@@ -200,6 +206,13 @@ Item {
 
                     PlasmaComponents.Label {
                         id: label
+	                    function check(model) {
+	                    	var result = caffeinePlus.checkProcessIsInhibited(model["LegacyWinIdList"])
+	                    	if (result["inhibitedFullScreen"] || result["inhibitedUserApps"] || result["inhibitedSys"])
+	                    		parent.children[0].visible = true
+
+	                    	return model.display
+	                    }
 
                         width: (parent.width - icon.width - parent.spacing - (underPin ? root.width - windowPin.x : 0))
                         height: parent.height
@@ -210,7 +223,7 @@ Item {
                         wrapMode: Text.NoWrap
                         elide: Text.ElideRight
 
-                        text: model.display
+                        text: check(model)
                     }
                 }
 
