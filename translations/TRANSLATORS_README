@@ -1,8 +1,8 @@
 1)
-Copy file po/plasma_applet_org.kde.caffeine-plus_en.po
+Copy file po/plasma_applet_org.kde.plasma.caffeine-plus_en.po
 
 2)
-Rename it to plasma_applet_org.kde.caffeine-plus_$LANG.po
+Rename it to plasma_applet_org.kde.plasma.caffeine-plus_$LANG.po
 - where $LANG is desired language, e.g. "pl" (or locale, e.g. "en_GB")
 
 3)

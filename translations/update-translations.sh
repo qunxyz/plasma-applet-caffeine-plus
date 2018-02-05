@@ -2,7 +2,7 @@
 
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 
-PROJECT="org.kde.caffeine-plus"
+PROJECT="org.kde.plasma.caffeine-plus"
 NAME="plasma_applet_$PROJECT"
 
 # svn checkout svn://anonsvn.kde.org/home/kde/trunk/l10n-kf5/scripts

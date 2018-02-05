@@ -25,7 +25,7 @@ add_subdirectory(plugin)
 add_subdirectory(translations)
 
 # Add installatation target ("make install").
-plasma_install_package(plasmoid org.kde.caffeine-plus)
+plasma_install_package(plasmoid org.kde.plasma.caffeine-plus)
 
 install( DIRECTORY image/hicolor DESTINATION ${ICON_INSTALL_DIR})
 

@@ -21,4 +21,4 @@ fi
 gtk-update-icon-cache
 kbuildsycoca5 --noincremental
 
-./shell-restart.sh &
+../shell-restart.sh &

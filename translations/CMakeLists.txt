@@ -7,7 +7,7 @@ IF(NOT GETTEXT_MSGFMT_EXECUTABLE)
 ------")
 ELSE(NOT GETTEXT_MSGFMT_EXECUTABLE)
 
-        SET(catalogname plasma_applet_org.kde.caffeine-plus)
+        SET(catalogname plasma_applet_org.kde.plasma.caffeine-plus)
 
         FILE(GLOB PO_FILES po/*.po)
         SET(GMO_FILES)

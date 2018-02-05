@@ -175,6 +175,7 @@ void CaffeinePlus::checkInhibition()
                 return;
             }
             m_inhibited = reply.value();
+            Q_EMIT inhibitionsChanged(m_inhibited);
         }
     );
 }

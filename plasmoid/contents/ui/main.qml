@@ -13,6 +13,15 @@ Item {
 
     Plasmoid.switchWidth: 300
     Plasmoid.switchHeight: 400
+        
+    Plasmoid.onUserConfiguringChanged: {
+    	if ( !caffeinePlus.isListEqual(root.userApps, plasmoid.configuration.userApps)
+    		|| root.enableFullscreen != plasmoid.configuration.enableFullscreen ) {
+    		root.userApps = plasmoid.configuration.userApps
+    		root.enableFullscreen = plasmoid.configuration.enableFullscreen
+    		caffeinePlus.updateSettings(plasmoid.configuration.enableFullscreen, plasmoid.configuration.userApps)
+    	}
+    }
 
 	Component.onCompleted: {
 		root.userApps = plasmoid.configuration.userApps
@@ -28,40 +37,10 @@ Item {
         width: units.iconSizes.medium
         height: units.iconSizes.medium
         active: mouseArea.containsMouse
-
-        function isListEqual(list1, list2) {
-        	var str1 = ""
-        	var str2 = ""
-        	for ( var i = 0; i < list1.length; i++ ) {
-        		str1 += list1[i]
-        	}
-        	for ( var i = 0; i < list2.length; i++ ) {
-        		str2 += list2[i]
-        	}
-
-	    	if (str1 != str2) return false
-
-	    	return true
-        }
-
-        function toggleIcon() {
-	    	if ( !sysTray.isListEqual(root.userApps, plasmoid.configuration.userApps)
-	    		|| root.enableFullscreen != plasmoid.configuration.enableFullscreen ) {
-	    		root.userApps = plasmoid.configuration.userApps
-	    		root.enableFullscreen = plasmoid.configuration.enableFullscreen
-	    		caffeinePlus.updateSettings(plasmoid.configuration.enableFullscreen, plasmoid.configuration.userApps)
-	    	}
-
-			if ( caffeinePlus.isInhibited() ) {
-            	if ( plasmoid.configuration.enableRestore ) {
-					sysTray.source = plasmoid.configuration.useDefaultIcons ? plasmoid.configuration.defaultIconUserActive : plasmoid.configuration.iconUserActive
-            	} else {
-					sysTray.source = plasmoid.configuration.useDefaultIcons ? plasmoid.configuration.defaultIconActive : plasmoid.configuration.iconActive
-            	}
-			} else {
-				sysTray.source = plasmoid.configuration.useDefaultIcons ? plasmoid.configuration.defaultIconInactive : plasmoid.configuration.iconInactive
-			}
-        }
+        
+		Component.onCompleted: {
+			caffeinePlus.sysTray = sysTray
+		}
 
         PlasmaCore.ToolTipArea {
             anchors.fill: parent
@@ -76,15 +55,6 @@ Item {
             	plasmoid.expanded = !plasmoid.expanded
             }
             hoverEnabled: true
-        }
-
-        Timer {
-        	id: textTimer
-        	interval: 1000
-        	repeat: true
-        	running: true
-        	triggeredOnStart: true
-        	onTriggered: sysTray.toggleIcon()
         }
     }
 
@@ -116,8 +86,37 @@ Item {
             initialPage: Qt.createComponent("windows.qml")
         }
     }
+
     CaffeinePlus.CaffeinePlus{
         id: caffeinePlus
+		property var sysTray
+
+        onInhibitionsChanged: {
+			if ( hasInhibition ) {
+            	if ( plasmoid.configuration.enableRestore ) {
+					sysTray.source = plasmoid.configuration.useDefaultIcons ? plasmoid.configuration.defaultIconUserActive : plasmoid.configuration.iconUserActive
+            	} else {
+					sysTray.source = plasmoid.configuration.useDefaultIcons ? plasmoid.configuration.defaultIconActive : plasmoid.configuration.iconActive
+            	}
+			} else {
+				sysTray.source = plasmoid.configuration.useDefaultIcons ? plasmoid.configuration.defaultIconInactive : plasmoid.configuration.iconInactive
+			}
+        }
+
+        function isListEqual(list1, list2) {
+        	var str1 = ""
+        	var str2 = ""
+        	for ( var i = 0; i < list1.length; i++ ) {
+        		str1 += list1[i]
+        	}
+        	for ( var i = 0; i < list2.length; i++ ) {
+        		str2 += list2[i]
+        	}
+
+	    	if (str1 != str2) return false
+
+	    	return true
+        }
 
 	    function toggle(flag) {
 	        if (flag) {

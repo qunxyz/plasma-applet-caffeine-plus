@@ -28,6 +28,7 @@ public:
 
 Q_SIGNALS:
 	void launcherAdded(const QString &url, bool isPopup);
+	void inhibitionsChanged(bool hasInhibition);
 
 public Q_SLOTS:
 	void init(bool enableFullscreen, const QStringList &userApps);
