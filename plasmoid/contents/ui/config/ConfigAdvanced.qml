@@ -14,9 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http: //www.gnu.org/licenses/>.
  */
-import QtQuick 2.2
-import QtQuick.Controls 1.3
-import QtQuick.Layouts 1.1
+import QtQuick 2.0
+import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.0
 import QtQuick.Window 2.0
 import org.kde.plasma.core 2.0 as PlasmaCore
@@ -29,47 +28,132 @@ Item {
     property var cfg_userApps:[]
     signal configurationChanged
 
+    function addApp(url) {
+    	if (advancedConfig.cfg_userApps.indexOf(url) != -1) return;
+
+		appsModel.addApp(url)
+		advancedConfig.cfg_userApps.push(url)
+		advancedConfig.configurationChanged()
+    }
+
+    function removeApp(index) {
+    	var item = appsModel.get(index);
+		var app_index = advancedConfig.cfg_userApps.indexOf(item['url'])
+
+    	advancedConfig.cfg_userApps.splice(app_index, 1)
+    	appsModel.remove(index)
+		advancedConfig.configurationChanged()
+    }
+
 	Component.onCompleted: {
 		var user_apps = cfg_userApps
 		for (var i = 0; i < user_apps.length; i++) {
-        	var user_app = user_apps[i]
-        	var isContinue = false
-        	for (var j = 0; j < container.children.length; j++) {
-        		if (user_app == container.children[j].children[0].text) {
-					isContinue = true
-					break
-				}
-        	}
-        	if (isContinue) continue
-        	var info = caffeinePlus.launcherData(user_app)
-            var component = Qt.createComponent("app.qml")
-			var buttonRow = component.createObject(container)
-        	console.log(buttonRow.children.length)
-			buttonRow.children[0].text = user_app
-			buttonRow.children[1]["iconSource"] = info["iconName"]
-			buttonRow.children[1]["text"] = info["applicationName"]
+			appsModel.addApp(user_apps[i]);
 		}
     }
 
-    PlasmaExtras.ScrollArea {
-        anchors.fill: parent
-        width: parent.width
-        Flickable {
-            id: flickable
-            contentHeight: container.height
-            clip: true
-            anchors.fill: parent
+    Rectangle {
+	    id: container
+	    width: 300; height: 400
 
-            Item {
-                width: Math.max(flickable.width, container.width)
-                height: container.height
-                Column {
-                    id: container
-                    spacing: 20
-                }
-            }
-        }
-    }
+	    ListModel {
+	        id: appsModel
+	        function addApp(url) {
+	        	var isExists = false
+	        	for (var i = 0; i < appsModel.count; i++) {
+	        		var item = appsModel.get(i);
+	        		if (item['url'] == url) {
+						isExists = true
+						break
+	        		}
+				}
+	        	if (isExists) return
+		    	var info = caffeinePlus.launcherData(url)
+
+				appsModel.append({
+		            "name": info["applicationName"],
+		            "iconName": info["iconName"],
+		            "url": url
+		        })
+		    }
+	    }
+
+	    // The delegate for each fruit in the model:
+	    Component {
+	        id: listDelegate
+	//! [0]
+	        Item {
+	//! [0]
+	            id: delegateItem
+	            width: listView.width; height: 20
+	            clip: true
+
+	            Item {
+
+	                Row {
+	                    PlasmaCore.IconItem {
+	                    	source: iconName
+	                    	width:24
+	                    	height: 20
+	                    }
+
+	                    Text {
+	                        text: name
+	                        font.pixelSize: 14
+	                        width: 200
+	                        height: 20
+	                    }
+
+	                    Text {
+	                    	text: url
+	                    	visible: false
+	                    }
+
+	                    PlasmaComponents.Button {
+	                        text: "Remove"
+	                        height: 20
+	                    	width:64
+	                        MouseArea { anchors.fill:parent; onClicked: advancedConfig.removeApp(index) }
+	                    }
+	                }
+	            }
+
+	            // Animate adding and removing of items:
+	//! [1]
+	            ListView.onAdd: SequentialAnimation {
+	                PropertyAction { target: delegateItem; property: "height"; value: 0 }
+	                NumberAnimation { target: delegateItem; property: "height"; to: 40; duration: 250; easing.type: Easing.InOutQuad }
+	            }
+
+	            ListView.onRemove: SequentialAnimation {
+	                PropertyAction { target: delegateItem; property: "ListView.delayRemove"; value: true }
+
+	                // Make sure delayRemove is set back to false so that the item can be destroyed
+	                PropertyAction { target: delegateItem; property: "ListView.delayRemove"; value: false }
+	            }
+	        }
+	//! [1]
+	    }
+
+	    // The view:
+	    ListView {
+	        id: listView
+	        flickableDirection: Flickable.VerticalFlick
+	        boundsBehavior: Flickable.StopAtBounds
+	        clip: true
+	        anchors {
+	            left: parent.left; top: parent.top;
+	            right: parent.right; bottom: parent.bottom;//bottom: buttons.top;
+	            margins: 0
+	        }
+	        model: appsModel
+	        delegate: listDelegate
+	         Layout.fillWidth: true
+	            Layout.fillHeight: true
+
+	            //PlasmaComponents.ScrollBar.vertical: PlasmaComponents.ScrollBar {}
+	    }
+	}
 
     Rectangle {
         id: bottomBar
@@ -79,7 +163,7 @@ Item {
         height: buttonRow.height * 1.2
         Row {
             id: buttonRow
-            Button {
+            PlasmaComponents.Button {
                 text: i18n("Add app need inhibit screensaver")
                 onClicked: caffeinePlus.addLauncher()
             }
@@ -88,23 +172,7 @@ Item {
     CaffeinePlus.CaffeinePlus{
         id: caffeinePlus
         onLauncherAdded: {
-        	var userApps = new Array()
-        	var isExists = false
-        	for (var j = 0; j < container.children.length; j++) {
-        		if (url == container.children[j].children[0].text) {
-					isExists = true
-					break
-				}
-        	}
-        	if (isExists) return
-        	var info = caffeinePlus.launcherData(url)
-            var component = Qt.createComponent("app.qml")
-			var buttonRow = component.createObject(container)
-			buttonRow.children[0].text = url
-			buttonRow.children[1]["iconSource"] = info["iconName"]
-			buttonRow.children[1]["text"] = info["applicationName"]
-			cfg_userApps.push(url)
-			advancedConfig.configurationChanged()
+        	advancedConfig.addApp(url);
         }
     }
 }
