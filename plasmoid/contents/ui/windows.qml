@@ -164,9 +164,13 @@ Item {
 
                     LayoutMirroring.enabled: (Qt.application.layoutDirection == Qt.RightToLeft)
 
-                    PlasmaComponents.Button {
+                    PlasmaCore.IconItem {
                     	visible: false
-                    	iconName: plasmoid.configuration.useDefaultIcons ? plasmoid.configuration.defaultIconActive : plasmoid.configuration.iconActive
+                    	source: plasmoid.configuration.useDefaultIcons ? plasmoid.configuration.defaultIconActive : plasmoid.configuration.iconActive
+                        width: visible ? units.iconSizes.small : 0
+                        height: width
+
+                        anchors.verticalCenter: parent.verticalCenter
 					}
 
                     PlasmaCore.IconItem {
