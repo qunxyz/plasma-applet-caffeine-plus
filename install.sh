@@ -11,6 +11,7 @@ if [ -f /usr/bin/apt ]; then
 elif [ -f /usr/bin/dnf ]; then
 	SYS_TYPE="Fedora"
 	PKG_CMD="dnf"
+	sudo ${PKG_CMD} install cmake extra-cmake-modules kf5-plasma-devel kf5-kio-devel
 elif [ -f /usr/bin/yum ]; then
 	SYS_TYPE="RedHat"
 	PKG_CMD="yum"
