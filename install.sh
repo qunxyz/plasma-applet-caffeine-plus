@@ -6,15 +6,15 @@ PKG_CMD=""
 if [ -f /usr/bin/apt ]; then
 	SYS_TYPE="Debian"
 	PKG_CMD="apt-get"
-	#sudo ${PKG_CMD} install cmake extra-cmake-modules build-essential gettext qtdeclarative5-dev libkf5kio-dev plasma-framework-dev
 	sudo ${PKG_CMD} install g++ cmake extra-cmake-modules pkg-config gettext qtdeclarative5-dev libkf5kio-dev plasma-framework-dev
 elif [[ -f /usr/bin/dnf || -L /usr/bin/dnf ]]; then
 	SYS_TYPE="Fedora"
 	PKG_CMD="dnf"
 	sudo ${PKG_CMD} install cmake extra-cmake-modules qt5-qtdeclarative-devel kf5-plasma-devel kf5-kio-devel gettext
-elif [ -f /usr/bin/yum ]; then
-	SYS_TYPE="RedHat"
-	PKG_CMD="yum"
+elif [ -f /usr/bin/zypper ]; then
+	SYS_TYPE="openSUSE"
+	PKG_CMD="zypper"
+	sudo ${PKG_CMD} install gcc cmake extra-cmake-modules libqt5-qtdeclarative-devel plasma-framework-dev kio-devel
 elif [ -f /usr/bin/pacman ]; then
 	SYS_TYPE="ArchLinux"
 	PKG_CMD="pacman"
