@@ -14,7 +14,8 @@ elif [[ -f /usr/bin/dnf || -L /usr/bin/dnf ]]; then
 elif [ -f /usr/bin/zypper ]; then
 	SYS_TYPE="openSUSE"
 	PKG_CMD="zypper"
-	sudo ${PKG_CMD} install gcc cmake extra-cmake-modules libqt5-qtdeclarative-devel plasma-framework-devel kio-devel kwindowsystem-devel
+	INSTALL_PREFIX="-DCMAKE_INSTALL_PREFIX=/usr"
+	sudo ${PKG_CMD} install gcc cmake extra-cmake-modules libqt5-qtdeclarative-devel plasma-framework-devel kio-devel kwindowsystem-devel AppStream
 elif [ -f /usr/bin/pacman ]; then
 	SYS_TYPE="ArchLinux"
 	PKG_CMD="pacman"
@@ -37,7 +38,7 @@ fi
 mkdir build
 cd build
 
-cmake .. -DCMAKE_BUILD_TYPE=Release -DKDE_INSTALL_USE_QT_SYS_PATHS=ON && make && sudo make install
+cmake .. ${INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=Release -DKDE_INSTALL_USE_QT_SYS_PATHS=ON && make && sudo make install
 
 if [[ -z $XDG_CACHE_HOME && -f "${XDG_CACHE_HOME}/icon-cache.kcache" ]]; then
 	rm ${XDG_CACHE_HOME}/icon-cache.kcache
