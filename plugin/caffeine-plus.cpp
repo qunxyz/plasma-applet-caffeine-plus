@@ -307,20 +307,22 @@ void CaffeinePlus::inhibitUserApps(WId id)
     	// Get the name of the file without the extension
     	QString file_name = QFileInfo(item).completeBaseName();
     	QVariantMap item_info = launcherData(item);
+    	QString applicationName = item_info.value("applicationName").toString();
+    	QString exec = item_info.value("exec").toString();
 
-    	if ( item_info.value("applicationName") != "" ) {
-    		if ( ginfo.name() != "" && ginfo.name() == item_info.value("applicationName") ) {
+    	if ( applicationName != "" ) {
+    		if ( file_name.indexOf(applicationName, 0) >= 0 || ( ginfo.name() != "" && applicationName.indexOf(ginfo.name(), 0) >= 0 ) ) {
     			needInhibit = true;
     			break;
     		}
     	}
 
-    	if (info.desktopFileName() != "" && info.desktopFileName() == file_name) {
+    	if ( info.desktopFileName() != "" && file_name.indexOf(info.desktopFileName(), 0) >= 0 ) {
 			needInhibit = true;
 			break;
     	}
 
-    	if (item_info.value("exec") != "" && info.windowClassClass() != "" && info.windowClassClass() == item_info.value("exec") ) {
+    	if ( item_info.value("exec") != "" && info.windowClassClass() != "" && exec.indexOf(info.windowClassClass(), 0) >= 0 ) {
 			needInhibit = true;
 			break;
     	}
