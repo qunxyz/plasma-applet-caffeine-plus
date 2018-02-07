@@ -14,8 +14,7 @@ elif [[ -f /usr/bin/dnf || -L /usr/bin/dnf ]]; then
 elif [ -f /usr/bin/zypper ]; then
 	SYS_TYPE="openSUSE"
 	PKG_CMD="zypper"
-	#sudo ${PKG_CMD} install gcc cmake extra-cmake-modules libqt5-qtdeclarative-devel plasma-framework-devel kio-devel kwindowsystem-devel
-	sudo ${PKG_CMD} install gcc cmake extra-cmake-modules libqt5-qtdeclarative-devel plasma-framework-devel kio-devel
+	sudo ${PKG_CMD} install gcc cmake extra-cmake-modules libqt5-qtdeclarative-devel plasma-framework-devel kio-devel kwindowsystem-devel
 elif [ -f /usr/bin/pacman ]; then
 	SYS_TYPE="ArchLinux"
 	PKG_CMD="pacman"
