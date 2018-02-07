@@ -18,7 +18,7 @@ elif [ -f /usr/bin/yum ]; then
 elif [ -f /usr/bin/pacman ]; then
 	SYS_TYPE="ArchLinux"
 	PKG_CMD="pacman"
-	sudo ${PKG_CMD} -S gcc cmake extra-cmake-modules pkg-config
+	sudo ${PKG_CMD} -S gcc make cmake extra-cmake-modules pkg-config
 fi
 
 #echo "SYS_TYPE: ${SYS_TYPE} PKG_CMD: ${PKG_CMD}"
