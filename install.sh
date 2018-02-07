@@ -22,11 +22,6 @@ elif [ -f /usr/bin/pacman ]; then
 	sudo ${PKG_CMD} -S gcc make cmake extra-cmake-modules pkg-config
 fi
 
-#echo "SYS_TYPE: ${SYS_TYPE} PKG_CMD: ${PKG_CMD}"
-
-#exit
-##########################################
-
 DIR="$( dirname "${BASH_SOURCE[0]}" )"
 cd $DIR
 
