@@ -93,7 +93,7 @@ void CaffeinePlus::updateSettings(bool enableFullscreen, const QStringList &user
     	bool isCookie;
 
 		uint cookie = m_apps[i].second.toLong(&isCookie, 10);
-		m_apps.removeOne(m_apps[i]);
+		deleteInhibition(m_apps[i].first);
 		if (!isCookie) continue;
 
 		QDBusMessage msg = QDBusMessage::createMethodCall(s_solidPowerService,
@@ -141,17 +141,7 @@ void CaffeinePlus::checkSysInhibitions()
 
             for ( int index = 0; index < reply.value().count(); ++index ) {
             	InhibitionInfo item = reply.value()[index];
-                bool needInsert = true;
-    			for ( int i = 0; i < m_apps.count(); ++i )
-    				if ( m_apps[i].first == item.first ) {
-    					needInsert = false;
-    					break;
-    				}
-
-    			if (!needInsert) continue;
-
-    			m_apps.append(qMakePair(item.first,item.second));
-
+            	saveInhibition(item);
             }
         }
     );
@@ -169,23 +159,10 @@ void CaffeinePlus::update()
 void CaffeinePlus::inhibitionsChanged(const QList<InhibitionInfo> &added, const QStringList &removed)
 {
 	foreach ( InhibitionInfo item, added )
-	{
-		bool needInsert = true;
-		for ( int i = 0; i < m_apps.count(); ++i )
-			if ( m_apps[i].first == item.first ) {
-				needInsert = false;
-				break;
-			}
-
-		if (!needInsert) continue;
-
-		m_apps.append(qMakePair(item.first,item.second));
-	}
+    	saveInhibition(item);
 
 	foreach ( QString item, removed )
-	    for ( int i = 0; i < m_apps.count(); ++i )
-			if ( m_apps[i].first == item )
-				m_apps.removeOne(m_apps[i]);
+		deleteInhibition(item);
 
     Q_UNUSED(added)
     Q_UNUSED(removed)
@@ -211,7 +188,7 @@ void CaffeinePlus::checkInhibition()
                 return;
             }
             m_inhibited = reply.value();
-            Q_EMIT inhibitionsChanged(m_inhibited);
+            Q_EMIT inhibitionsChanged(m_inhibited, m_apps.count());
         }
     );
 }
@@ -219,10 +196,10 @@ void CaffeinePlus::checkInhibition()
 void CaffeinePlus::addInhibition(const QString &appName, const QString &reason)
 {
 	if ( ! m_isInited ) return;
-	for ( int i=0; i < m_apps.count(); ++i )
-		if ( m_apps[i].first == appName ) return;
+	if (getInhibitionIndex(appName) >= 0) return;
 
-	m_apps.append(qMakePair(appName,reason)); // insert first
+	InhibitionInfo item = qMakePair(appName,reason);
+	saveInhibition(item); // insert first
 
 	QDBusMessage msg = QDBusMessage::createMethodCall(s_solidPowerService,
 													  s_solidPath,
@@ -237,57 +214,89 @@ void CaffeinePlus::addInhibition(const QString &appName, const QString &reason)
 			self->deleteLater();
 			if (!reply.isValid()) {
 				qDebug() << "caffeine-plus::addInhibition error: " << reply.error().message();
-				for ( int i = 0; i < m_apps.count(); ++i )
-					if ( m_apps[i].first == appName ) {
-						m_apps.removeOne(m_apps[i]);
-						return;
-					}
+				deleteInhibition(appName);
+
 				return;
 			}
-			for ( int i = 0; i < m_apps.count(); ++i )
-				if ( m_apps[i].first == appName ) {
-					m_apps[i].second = QString("%1").arg(reply.value());
-					return;
-				}
+
+			saveInhibitionCookie(appName, reply.value());
 		}
 	);
 }
 
 void CaffeinePlus::releaseInhibition(const QString &appName)
 {
-	for ( int i=0; i < m_apps.count(); ++i )
-	{
-		if ( m_apps[i].first == appName ) {
-			bool isCookie;
+	int index = getInhibitionIndex(appName);
+	if (index < 0) return;
+	InhibitionInfo item = m_apps[index];
 
-			uint cookie = m_apps[i].second.toLong(&isCookie, 10);
-			if (!isCookie){
-				qDebug() << "caffeine-plus::releaseInhibition cookie error second: " << m_apps[i].second;
+	bool isCookie;
+
+	uint cookie = item.second.toLong(&isCookie, 10);
+	if (!isCookie){
+		qDebug() << "caffeine-plus::releaseInhibition cookie error second: " << item.second;
+		return;
+	}
+
+	QDBusMessage msg = QDBusMessage::createMethodCall(s_solidPowerService,
+													  s_solidPath,
+													  s_solidPowerService,
+													  QStringLiteral("ReleaseInhibition"));
+	msg << cookie;
+	QDBusPendingReply<void> pendingReply = QDBusConnection::sessionBus().asyncCall(msg);
+	QDBusPendingCallWatcher *callWatcher = new QDBusPendingCallWatcher(pendingReply, this);
+	connect(callWatcher, &QDBusPendingCallWatcher::finished, this,
+		[this, item](QDBusPendingCallWatcher *self) {
+			QDBusPendingReply<void> reply = *self;
+			self->deleteLater();
+			if (!reply.isValid()) {
+				qDebug() << "caffeine-plus::releaseInhibition error: " << reply.error().message();
 				return;
 			}
-			InhibitionInfo item = m_apps[i];
 
-			QDBusMessage msg = QDBusMessage::createMethodCall(s_solidPowerService,
-															  s_solidPath,
-															  s_solidPowerService,
-															  QStringLiteral("ReleaseInhibition"));
-			msg << cookie;
-			QDBusPendingReply<void> pendingReply = QDBusConnection::sessionBus().asyncCall(msg);
-			QDBusPendingCallWatcher *callWatcher = new QDBusPendingCallWatcher(pendingReply, this);
-			connect(callWatcher, &QDBusPendingCallWatcher::finished, this,
-				[this, item](QDBusPendingCallWatcher *self) {
-					QDBusPendingReply<void> reply = *self;
-					self->deleteLater();
-					if (!reply.isValid()) {
-						qDebug() << "caffeine-plus::releaseInhibition error: " << reply.error().message();
-						return;
-					}
-
-					m_apps.removeOne(item);
-				}
-			);
+			deleteInhibition(item.first);
 		}
-	}
+	);
+}
+
+int CaffeinePlus::getInhibitionIndex(const QString &appName)
+{
+	for ( int i = 0; i < m_apps.count(); ++i )
+		if ( m_apps[i].first == appName )
+			return i;
+
+	return -1;
+}
+
+void CaffeinePlus::saveInhibition(InhibitionInfo &item)
+{
+	bool needInsert = true;
+	for ( int i = 0; i < m_apps.count(); ++i )
+		if ( m_apps[i].first == item.first ) {
+			needInsert = false;
+			break;
+		}
+
+	if (!needInsert) return;
+
+	m_apps.append(qMakePair(item.first,item.second));
+}
+
+void CaffeinePlus::saveInhibitionCookie(const QString &appName, const uint cookie)
+{
+	for ( int i = 0; i < m_apps.count(); ++i )
+		if ( m_apps[i].first == appName ) {
+			m_apps[i].second = QString("%1").arg(cookie);
+			return;
+		}
+}
+
+void CaffeinePlus::deleteInhibition(const QString &appName)
+{
+    for ( int i = 0; i < m_apps.count(); ++i ) {
+		if ( m_apps[i].first == appName )
+			m_apps.removeOne(m_apps[i]);
+    }
 }
 
 void CaffeinePlus::listenWindows()
@@ -306,12 +315,7 @@ void CaffeinePlus::inhibitFullscreen(WId id)
 	bool needInhibit = isFullScreen;
 	QString appName = getNameByID(QString("%1").arg(id), false);
 
-    for (int i=0; i < m_apps.count(); ++i)
-    	if ( m_apps[i].first == appName ) {
-    		needInhibit = false;
-
-			break;
-    	}
+	if (getInhibitionIndex(appName) >= 0) needInhibit = false;
 
     if ( m_enableFullscreen && needInhibit )
     	addInhibition(appName, QString("inhibit by caffeine plus for fullscreen"));
@@ -360,13 +364,10 @@ void CaffeinePlus::inhibitUserApps(WId id)
 {
 	QString appName = getNameByID(QString("%1").arg(id), true);
 
-	for (int i=0; i < m_apps.count(); ++i)
-		if ( m_apps[i].first == appName ) {
-			if (!inUserApps(id))
-				releaseInhibition(appName);
-
-			return;
-		}
+	if (getInhibitionIndex(appName) >= 0 && !inUserApps(id)) {
+		releaseInhibition(appName);
+		return;
+	}
 
     if ( inUserApps(id) )
     	addInhibition(appName, QString("inhibit by caffeine plus for userApps"));
@@ -387,24 +388,13 @@ void CaffeinePlus::windowChanged (WId id)
 
 void CaffeinePlus::windowRemoved (WId id)
 {
-	bool needUnInhibitUserApps = false;
-	bool needUnInhibitFullScreen = false;
 	QString appNameUserApps = getNameByID(QString("%1").arg(id), true);
 	QString appNameFullScreen = getNameByID(QString("%1").arg(id), false);
 
-	for (int i=0; i < m_apps.count(); ++i)
-	{
-		if ( m_apps[i].first == appNameUserApps )
-			needUnInhibitUserApps = true;
-
-		if ( m_apps[i].first == appNameFullScreen )
-			needUnInhibitFullScreen = true;
-	}
-
-    if ( needUnInhibitUserApps )
+	if (getInhibitionIndex(appNameUserApps) >= 0)
     	releaseInhibition(appNameUserApps);
 
-    if ( needUnInhibitFullScreen )
+	if (getInhibitionIndex(appNameFullScreen) >= 0)
     	releaseInhibition(appNameFullScreen);
 }
 
@@ -432,17 +422,14 @@ QVariantMap CaffeinePlus::checkProcessIsInhibited(const QString &id) {
 			appNameSys = info.windowClassClass().toLower();
 	}
 
-	for (int i = 0; i < m_apps.count(); ++i) {
-		if ( m_apps[i].first == appNameUserApps )
-			inhibitedUserApps = true;
+	if (getInhibitionIndex(appNameUserApps) >= 0)
+		inhibitedUserApps = true;
 
-		if ( m_apps[i].first == appNameFullScreen )
-			inhibitedFullScreen = true;
+	if (getInhibitionIndex(appNameFullScreen) >= 0)
+		inhibitedFullScreen = true;
 
-		if ( m_apps[i].first.toLower() == appNameSys ) {
-			inhibitedSys = true;
-		}
-	}
+	if (getInhibitionIndex(appNameSys) >= 0)
+		inhibitedSys = true;
 
     return QVariantMap{
         {QStringLiteral("inhibitedUserApps"), inhibitedUserApps},

@@ -28,7 +28,7 @@ public:
 
 Q_SIGNALS:
 	void launcherAdded(const QString &url, bool isPopup);
-	void inhibitionsChanged(bool hasInhibition);
+	void inhibitionsChanged(bool hasInhibition, int inhibitionSize);
 
 public Q_SLOTS:
 	void init(bool enableFullscreen, const QStringList &userApps);
@@ -58,6 +58,11 @@ private:
 	void listenWindows();
 	bool inUserApps(WId id);
 	QString getNameByID(const QString &id, bool inhibitType);
+
+	int getInhibitionIndex(const QString &appName);
+	void saveInhibition(InhibitionInfo &item);
+	void saveInhibitionCookie(const QString &appName, const uint cookie);
+	void deleteInhibition(const QString &appName);
 
 	QDBusServiceWatcher *m_solidPowerServiceWatcher;
 	bool m_serviceRegistered = false;

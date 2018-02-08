@@ -93,6 +93,7 @@ Item {
         id: caffeinePlus
 		property var sysTray
 		property var preHasInhibition: false
+		property var preInhibitionSize: 0
 
         onInhibitionsChanged: {
 			if ( hasInhibition ) {
@@ -105,9 +106,10 @@ Item {
 				sysTray.source = plasmoid.configuration.useDefaultIcons ? plasmoid.configuration.defaultIconInactive : plasmoid.configuration.iconInactive
 			}
 
-			if ( hasInhibition != preHasInhibition ) {
+			if ( hasInhibition != preHasInhibition || inhibitionSize != preInhibitionSize ) {
 				preHasInhibition = hasInhibition
-				//root.windows.inhibitionsChanged()
+				preInhibitionSize = inhibitionSize
+
 				if (root.windowsIsInited)
 					root.windows.inhibitionsChanged()
 			}
