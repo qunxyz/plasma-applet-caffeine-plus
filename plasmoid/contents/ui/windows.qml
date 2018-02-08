@@ -27,7 +27,11 @@ import org.kde.kwindowsystem 1.0 as KWindowSystem
 
 
 Item {
-    id: root
+    id: windows
+    signal inhibitionsChanged
+	onInhibitionsChanged: {
+		tasksModel.modelReset();
+	}
 
     Layout.minimumWidth: units.gridUnit * 12
     Layout.minimumHeight: units.gridUnit * 12
@@ -40,6 +44,11 @@ Item {
     property int itemHeight: Math.ceil((Math.max(theme.mSize(theme.defaultFont).height, units.iconSizes.small)
         + Math.max(highlightItemSvg.margins.top + highlightItemSvg.margins.bottom,
         listItemSvg.margins.top + listItemSvg.margins.bottom)) / 2) * 2
+
+    Component.onCompleted: {
+    	root.windowsIsInited = true;
+    	root.windows = windows;
+    }
 
     TaskManager.TasksModel {
         id: tasksModel
@@ -134,7 +143,7 @@ Item {
             delegate: MouseArea {
                 id: item
 
-                height: root.itemHeight
+                height: windows.itemHeight
                 width: windowListView.overflowing ? ListView.view.width - units.smallSpacing : ListView.view.width
 
                 property bool underPin: (item == windowListView.pinTopItem || item == windowListView.pinBottomItem)
@@ -201,7 +210,7 @@ Item {
 	                    	return model.display
 	                    }
 
-                        width: (parent.width - icon.width - parent.spacing - (underPin ? root.width - windowPin.x : 0))
+                        width: (parent.width - icon.width - parent.spacing - (underPin ? windows.width - windowPin.x : 0))
                         height: parent.height
 
                         verticalAlignment: Text.AlignVCenter

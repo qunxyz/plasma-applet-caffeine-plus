@@ -51,10 +51,12 @@ private Q_SLOTS:
 	void windowRemoved (WId id);
 
 private:
+	void checkSysInhibitions();
 	void update();
 	void inhibitFullscreen(WId id);
 	void inhibitUserApps(WId id);
 	void listenWindows();
+	bool inUserApps(WId id);
 	QString getNameByID(const QString &id, bool inhibitType);
 
 	QDBusServiceWatcher *m_solidPowerServiceWatcher;

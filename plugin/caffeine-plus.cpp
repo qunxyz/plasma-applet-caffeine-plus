@@ -82,7 +82,7 @@ void CaffeinePlus::init(bool enableFullscreen, const QStringList &userApps)
     );
 
     listenWindows();
-
+    checkSysInhibitions();
 }
 void CaffeinePlus::updateSettings(bool enableFullscreen, const QStringList &userApps)
 {
@@ -119,6 +119,42 @@ void CaffeinePlus::updateSettings(bool enableFullscreen, const QStringList &user
 	for (auto it = windows.cbegin(), end = windows.cend(); it != end; ++it) {
 		windowChanged (*it);
 	}
+}
+
+void CaffeinePlus::checkSysInhibitions()
+{
+    QDBusMessage msg = QDBusMessage::createMethodCall(s_solidPowerService,
+                                                      s_solidPath,
+                                                      s_solidPowerService,
+                                                      QStringLiteral("ListInhibitions"));
+
+    QDBusPendingReply<QList<InhibitionInfo>> pendingReply = QDBusConnection::sessionBus().asyncCall(msg);
+    QDBusPendingCallWatcher *callWatcher = new QDBusPendingCallWatcher(pendingReply, this);
+    connect(callWatcher, &QDBusPendingCallWatcher::finished, this,
+        [this](QDBusPendingCallWatcher *self) {
+            QDBusPendingReply<QList<InhibitionInfo>> reply = *self;
+            self->deleteLater();
+            if (!reply.isValid()) {
+				qDebug() << "caffeine-plus::checkSysInhibitions error: " << reply.error().message();
+                return;
+            }
+
+            for ( int index = 0; index < reply.value().count(); ++index ) {
+            	InhibitionInfo item = reply.value()[index];
+                bool needInsert = true;
+    			for ( int i = 0; i < m_apps.count(); ++i )
+    				if ( m_apps[i].first == item.first ) {
+    					needInsert = false;
+    					break;
+    				}
+
+    			if (!needInsert) continue;
+
+    			m_apps.append(qMakePair(item.first,item.second));
+
+            }
+        }
+    );
 }
 
 void CaffeinePlus::update()
@@ -283,22 +319,11 @@ void CaffeinePlus::inhibitFullscreen(WId id)
     	releaseInhibition(appName);
 }
 
-void CaffeinePlus::inhibitUserApps(WId id)
+bool CaffeinePlus::inUserApps(WId id)
 {
-	bool needInhibit = true;
-	QString appName = getNameByID(QString("%1").arg(id), true);
-
-	for (int i=0; i < m_apps.count(); ++i)
-		if ( m_apps[i].first == appName ) {
-			needInhibit = false;
-			break;
-		}
-
-	if ( !needInhibit ) return;
-	needInhibit = false;
-
+	bool isInUserApps = false;
 	KWindowInfo info(id, NET::WMState|NET::WMName, NET::WM2GroupLeader|NET::WM2DesktopFileName|NET::WM2WindowClass|NET::WM2WindowRole);
-	if (!info.valid() ) return;
+	if (!info.valid() ) return isInUserApps;
 
 	WId gid = info.groupLeader();
 	KWindowInfo ginfo(gid, NET::WMState|NET::WMName, NET::WM2DesktopFileName|NET::WM2WindowClass|NET::WM2WindowRole);
@@ -312,23 +337,38 @@ void CaffeinePlus::inhibitUserApps(WId id)
 
     	if ( applicationName != "" ) {
     		if ( file_name.indexOf(applicationName, 0) >= 0 || ( ginfo.name() != "" && applicationName.indexOf(ginfo.name(), 0) >= 0 ) ) {
-    			needInhibit = true;
+    			isInUserApps = true;
     			break;
     		}
     	}
 
     	if ( info.desktopFileName() != "" && file_name.indexOf(info.desktopFileName(), 0) >= 0 ) {
-			needInhibit = true;
+			isInUserApps = true;
 			break;
     	}
 
     	if ( item_info.value("exec") != "" && info.windowClassClass() != "" && exec.indexOf(info.windowClassClass(), 0) >= 0 ) {
-			needInhibit = true;
+			isInUserApps = true;
 			break;
     	}
     }
 
-    if ( needInhibit )
+    return isInUserApps;
+}
+
+void CaffeinePlus::inhibitUserApps(WId id)
+{
+	QString appName = getNameByID(QString("%1").arg(id), true);
+
+	for (int i=0; i < m_apps.count(); ++i)
+		if ( m_apps[i].first == appName ) {
+			if (!inUserApps(id))
+				releaseInhibition(appName);
+
+			return;
+		}
+
+    if ( inUserApps(id) )
     	addInhibition(appName, QString("inhibit by caffeine plus for userApps"));
 }
 
@@ -399,8 +439,9 @@ QVariantMap CaffeinePlus::checkProcessIsInhibited(const QString &id) {
 		if ( m_apps[i].first == appNameFullScreen )
 			inhibitedFullScreen = true;
 
-		if ( m_apps[i].first.toLower() == appNameSys )
+		if ( m_apps[i].first.toLower() == appNameSys ) {
 			inhibitedSys = true;
+		}
 	}
 
     return QVariantMap{

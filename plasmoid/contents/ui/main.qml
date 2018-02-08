@@ -10,10 +10,12 @@ Item {
 	property var icon: plasmoid.configuration.useDefaultIcons ? plasmoid.configuration.defaultIconInactive : plasmoid.configuration.iconInactive
 	property var userApps: []
 	property var enableFullscreen
+	property var windows
+	property var windowsIsInited: false
 
     Plasmoid.switchWidth: 300
     Plasmoid.switchHeight: 400
-        
+
     Plasmoid.onUserConfiguringChanged: {
     	if ( !caffeinePlus.isListEqual(root.userApps, plasmoid.configuration.userApps)
     		|| root.enableFullscreen != plasmoid.configuration.enableFullscreen ) {
@@ -37,7 +39,7 @@ Item {
         width: units.iconSizes.medium
         height: units.iconSizes.medium
         active: mouseArea.containsMouse
-        
+
 		Component.onCompleted: {
 			caffeinePlus.sysTray = sysTray
 		}
@@ -90,6 +92,7 @@ Item {
     CaffeinePlus.CaffeinePlus{
         id: caffeinePlus
 		property var sysTray
+		property var preHasInhibition: false
 
         onInhibitionsChanged: {
 			if ( hasInhibition ) {
@@ -100,6 +103,13 @@ Item {
             	}
 			} else {
 				sysTray.source = plasmoid.configuration.useDefaultIcons ? plasmoid.configuration.defaultIconInactive : plasmoid.configuration.iconInactive
+			}
+
+			if ( hasInhibition != preHasInhibition ) {
+				preHasInhibition = hasInhibition
+				//root.windows.inhibitionsChanged()
+				if (root.windowsIsInited)
+					root.windows.inhibitionsChanged()
 			}
         }
 
