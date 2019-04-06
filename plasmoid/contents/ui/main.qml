@@ -10,6 +10,7 @@ Item {
 	property var icon: plasmoid.configuration.useDefaultIcons ? plasmoid.configuration.defaultIconInactive : plasmoid.configuration.iconInactive
 	property var userApps: []
 	property var enableFullscreen
+	property var enableDebug
 	property var windows
 	property var windowsIsInited: false
 
@@ -18,10 +19,12 @@ Item {
 
     Plasmoid.onUserConfiguringChanged: {
     	if ( !caffeinePlus.isListEqual(root.userApps, plasmoid.configuration.userApps)
-    		|| root.enableFullscreen != plasmoid.configuration.enableFullscreen ) {
+    		|| root.enableFullscreen != plasmoid.configuration.enableFullscreen
+    		|| root.enableDebug != plasmoid.configuration.enableDebug ) {
     		root.userApps = plasmoid.configuration.userApps
     		root.enableFullscreen = plasmoid.configuration.enableFullscreen
-    		caffeinePlus.updateSettings(plasmoid.configuration.enableFullscreen, plasmoid.configuration.userApps)
+    		root.enableDebug = plasmoid.configuration.enableDebug
+    		caffeinePlus.updateSettings(plasmoid.configuration.enableFullscreen, plasmoid.configuration.userApps, plasmoid.configuration.enableDebug)
     	}
     }
 
@@ -29,7 +32,7 @@ Item {
 		root.userApps = plasmoid.configuration.userApps
 		root.enableFullscreen = plasmoid.configuration.enableFullscreen
 
-		caffeinePlus.init(plasmoid.configuration.enableFullscreen, plasmoid.configuration.userApps)
+		caffeinePlus.init(plasmoid.configuration.enableFullscreen, plasmoid.configuration.userApps, plasmoid.configuration.enableDebug)
 		caffeinePlus.toggle(plasmoid.configuration.enableRestore)
     }
     Plasmoid.preferredRepresentation: Plasmoid.compactRepresentation

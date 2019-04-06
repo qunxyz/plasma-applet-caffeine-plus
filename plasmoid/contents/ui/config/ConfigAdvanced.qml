@@ -25,6 +25,7 @@ import org.kde.private.CaffeinePlus 1.0 as CaffeinePlus
 
 Item {
     id: advancedConfig
+    property alias cfg_enableDebug: enableDebug.checked
     property var cfg_userApps:[]
     signal configurationChanged
 
@@ -160,13 +161,34 @@ Item {
         anchors {
             bottom: parent.bottom
         }
-        height: buttonRow.height * 1.2
-        Row {
-            id: buttonRow
-            PlasmaComponents.Button {
-                text: i18n("Add app need inhibit screensaver")
-                onClicked: caffeinePlus.addLauncher()
-            }
+        height: buttonRow.height * 2
+        Column {
+	        anchors {
+	            bottom: parent.top
+	        }
+	        Rectangle {
+		        id: bottomInterBar
+        		height: buttonRow.height * 2
+		        Row {
+		            id: buttonAddLauncher
+			        anchors {
+			            bottom: parent.top
+			        }
+		            PlasmaComponents.Button {
+		                text: i18n("Add app need inhibit screensaver")
+		                onClicked: caffeinePlus.addLauncher()
+		            }
+		        }
+		        
+		        Row {
+		            id: buttonRow
+		            PlasmaComponents.CheckBox {
+			            id: enableDebug
+			            text: i18n('Enable debug (log file will be placed in your home, named caffeine-plugs-debug.log)')
+			            Layout.columnSpan: 2
+			        }
+		        }
+		  	}
         }
     }
     CaffeinePlus.CaffeinePlus{

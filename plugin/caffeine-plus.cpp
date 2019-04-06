@@ -22,6 +22,7 @@
 #include <KDesktopFile>
 #include <KOpenWithDialog>
 #include <KPropertiesDialog>
+#include <KCoreAddons>
 
 #include <kio/global.h>
 
@@ -39,11 +40,14 @@ CaffeinePlus::CaffeinePlus(QObject *parent)
 
 CaffeinePlus::~CaffeinePlus() = default;
 
-void CaffeinePlus::init(bool enableFullscreen, const QStringList &userApps)
+void CaffeinePlus::init(bool enableFullscreen, const QStringList &userApps, bool enableDebug)
 {
     m_userApps = userApps;
     m_enableFullscreen = enableFullscreen;
+    m_enableDebug = enableDebug;
 	m_isInited = true;
+	m_debug_log = QString("%1/caffeine-plugs-debug.log").arg(QDir::homePath());
+    logInfo("system");
 
     qDBusRegisterMetaType<QList<InhibitionInfo>>();
     qDBusRegisterMetaType<InhibitionInfo>();
@@ -84,10 +88,12 @@ void CaffeinePlus::init(bool enableFullscreen, const QStringList &userApps)
     listenWindows();
     checkSysInhibitions();
 }
-void CaffeinePlus::updateSettings(bool enableFullscreen, const QStringList &userApps)
+void CaffeinePlus::updateSettings(bool enableFullscreen, const QStringList &userApps, bool enableDebug)
 {
     m_userApps = userApps;
     m_enableFullscreen = enableFullscreen;
+    m_enableDebug = enableDebug;
+    logInfo("system");
 
     for ( int i = 0; i < m_apps.count(); ++i ) {
     	bool isCookie;
@@ -116,8 +122,61 @@ void CaffeinePlus::updateSettings(bool enableFullscreen, const QStringList &user
     }
 
 	QList<WId> windows = KWindowSystem::windows();
-	for (auto it = windows.cbegin(), end = windows.cend(); it != end; ++it) {
+	for (auto it = windows.cbegin(), end = windows.cend(); it != end; ++it)
 		windowChanged (*it);
+}
+
+void CaffeinePlus::logInfo(QString log_type)
+{
+	if (!m_enableDebug)
+		return;
+
+	QString process_info = "";
+	QFile out_log(m_debug_log);
+	bool iswriteable = true;
+
+	if (!out_log.open(QIODevice::Append | QIODevice::Text))
+		iswriteable = false;
+
+	QTextStream out(&out_log);
+
+	if (log_type == "system") {
+		QString os_file_path = "";
+		if (QFile::exists(QStringLiteral("/etc/os-release"))) {
+			os_file_path = "/etc/os-release";
+		} else if (QFile::exists(QStringLiteral("/usr/lib/os-release"))) {
+			os_file_path = "/usr/lib/os-release";
+		}
+
+		out << "KDE Plasma Version: " << plasmaVersion() << "\n";
+		out << "KDE Frameworks Version: " << KCoreAddons::versionString() << "\n";
+		out << "Qt Version: " << QString::fromLatin1(qVersion()) << "\n";
+
+		QFile os_file(os_file_path);
+		if (!os_file.open(QIODevice::ReadOnly | QIODevice::Text))
+			return;
+
+		while (!os_file.atEnd()) {
+			out << os_file.readLine();
+		}
+	}
+
+	if (log_type == "apps") {
+		for ( int i = 0; i < m_apps.count(); ++i ) {
+			QStringList pieces = m_apps[i].first.split( "|" );
+			if (iswriteable) {
+				out << "caffeine-plus::checkInhibition debug: "
+					<< m_apps[i].first << " " << m_apps_extra[i].second << " ";
+			}
+			if (pieces.length() > 1) {
+				process_info = getProcessInfo(QString("%1").arg(pieces.value(0)));
+				if (process_info == "" && iswriteable)
+					out << "This inhibition is dead, should be removed!\n";
+				else if (iswriteable)
+					out << " " << process_info << "\n";
+			} else if (iswriteable)
+				out << " " << process_info << "\n";
+		}
 	}
 }
 
@@ -141,7 +200,14 @@ void CaffeinePlus::checkSysInhibitions()
 
             for ( int index = 0; index < reply.value().count(); ++index ) {
             	InhibitionInfo item = reply.value()[index];
+            	InhibitionInfoExtra item_extra;
+            	QStringList pieces = item.first.split( "|" );
+            	if (pieces.length() > 1)
+            		item_extra = qMakePair(item.first, item.second);
+            	else
+            		item_extra = qMakePair(item.first, QString("%1 (from system)").arg(item.second));;
             	saveInhibition(item);
+            	saveInhibitionExtra(item_extra);
             }
         }
     );
@@ -156,10 +222,30 @@ void CaffeinePlus::update()
     checkInhibition();
 }
 
+QString CaffeinePlus::plasmaVersion() const
+{
+    const QStringList &filePaths = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation,
+                                                             QStringLiteral("xsessions/plasma.desktop"));
+
+    if (filePaths.length() < 1) {
+        return QString();
+    }
+
+    // Despite the fact that there can be multiple desktop files we simply take
+    // the first one as users usually don't have xsessions/ in their $HOME
+    // data location, so the first match should (usually) be the only one and
+    // reflect the plasma session run.
+    KDesktopFile desktopFile(filePaths.first());
+    return desktopFile.desktopGroup().readEntry("X-KDE-PluginInfo-Version", QString());
+}
+
 void CaffeinePlus::inhibitionsChanged(const QList<InhibitionInfo> &added, const QStringList &removed)
 {
-	foreach ( InhibitionInfo item, added )
+	foreach ( InhibitionInfo item, added ) {
+		InhibitionInfoExtra item_extra = qMakePair(item.first,item.second);
     	saveInhibition(item);
+    	saveInhibitionExtra(item_extra);
+	}
 
 	foreach ( QString item, removed )
 		deleteInhibition(item);
@@ -172,6 +258,7 @@ void CaffeinePlus::inhibitionsChanged(const QList<InhibitionInfo> &added, const 
 
 void CaffeinePlus::checkInhibition()
 {
+    logInfo("apps");
     QDBusMessage msg = QDBusMessage::createMethodCall(s_solidPowerService,
                                                       s_solidPath,
                                                       s_solidPowerService,
@@ -199,7 +286,10 @@ void CaffeinePlus::addInhibition(const QString &appName, const QString &reason)
 	if (getInhibitionIndex(appName) >= 0) return;
 
 	InhibitionInfo item = qMakePair(appName,reason);
+	InhibitionInfoExtra item_extra = qMakePair(appName,reason);
+
 	saveInhibition(item); // insert first
+	saveInhibitionExtra(item_extra); // insert first
 
 	QDBusMessage msg = QDBusMessage::createMethodCall(s_solidPowerService,
 													  s_solidPath,
@@ -282,6 +372,20 @@ void CaffeinePlus::saveInhibition(InhibitionInfo &item)
 	m_apps.append(qMakePair(item.first,item.second));
 }
 
+void CaffeinePlus::saveInhibitionExtra(InhibitionInfoExtra &item)
+{
+	bool needInsert = true;
+	for ( int i = 0; i < m_apps_extra.count(); ++i )
+		if ( m_apps_extra[i].first == item.first ) {
+			needInsert = false;
+			break;
+		}
+
+	if (!needInsert) return;
+
+	m_apps_extra.append(qMakePair(item.first,item.second));
+}
+
 void CaffeinePlus::saveInhibitionCookie(const QString &appName, const uint cookie)
 {
 	for ( int i = 0; i < m_apps.count(); ++i )
@@ -294,8 +398,10 @@ void CaffeinePlus::saveInhibitionCookie(const QString &appName, const uint cooki
 void CaffeinePlus::deleteInhibition(const QString &appName)
 {
     for ( int i = 0; i < m_apps.count(); ++i ) {
-		if ( m_apps[i].first == appName )
+		if ( m_apps[i].first == appName ) {
 			m_apps.removeOne(m_apps[i]);
+			m_apps_extra.removeOne(m_apps_extra[i]);
+		}
     }
 }
 
@@ -375,9 +481,9 @@ void CaffeinePlus::inhibitUserApps(WId id)
 
 QString CaffeinePlus::getNameByID(const QString &id, bool inhibitType) {
 	if (inhibitType)
-		return QString("%1-%2").arg(id).arg(SUFFIX_USER_APP);
+		return QString("%1%2").arg(id).arg(SUFFIX_USER_APP);
 
-	return QString("%1-%2").arg(id).arg(SUFFIX_FULL_SCREEN);
+	return QString("%1%2").arg(id).arg(SUFFIX_FULL_SCREEN);
 }
 
 void CaffeinePlus::windowChanged (WId id)
@@ -402,6 +508,24 @@ void CaffeinePlus::windowAdded (WId id)
 {
 	inhibitFullscreen(id);
 	inhibitUserApps(id);
+}
+
+QString CaffeinePlus::getProcessInfo(const QString &id) {
+    //QString appNameSys = "";
+	QString msg = "";
+	bool isWID;
+	WId wid = id.toLong(&isWID, 10);
+
+	if (isWID) {
+		KWindowInfo info(wid, NET::WMState|NET::WMName|NET::WMPid,
+				NET::WM2GroupLeader|NET::WM2DesktopFileName|NET::WM2WindowClass|NET::WM2WindowRole);
+		if (info.valid() ) {
+			msg = QString("Name: %1  PID: %2  DesktopFileName: %3")
+					.arg(info.windowClassClass(), QString::number(info.pid()), QString(info.desktopFileName()));
+		}
+	}
+
+	return msg;
 }
 
 QVariantMap CaffeinePlus::checkProcessIsInhibited(const QString &id) {
@@ -529,4 +653,3 @@ void CaffeinePlus::addLauncher(bool isPopup)
         }
     });
 }
-
