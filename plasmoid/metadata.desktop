@@ -16,3 +16,6 @@ X-Plasma-API=declarativeappletscript
 X-Plasma-MainScript=ui/main.qml
 X-KDE-PluginInfo-Category=Miscellaneous
 X-KDE-PluginInfo-EnabledByDefault=true
+
+X-Plasma-NotificationArea=true
+X-Plasma-NotificationAreaCategory=Hardware
