@@ -45,8 +45,8 @@ void CaffeinePlus::init(bool enableFullscreen, const QStringList &userApps, bool
     m_userApps = userApps;
     m_enableFullscreen = enableFullscreen;
     m_enableDebug = enableDebug;
-	m_isInited = true;
-	m_debug_log = QString("%1/caffeine-plugs-debug.log").arg(QDir::homePath());
+    m_isInited = true;
+    m_debug_log = QString("%1/caffeine-plus-debug.log").arg(QStandardPaths::CacheLocation);
     logInfo("system");
 
     qDBusRegisterMetaType<QList<InhibitionInfo>>();

@@ -184,7 +184,7 @@ Item {
 		            id: buttonRow
 		            PlasmaComponents.CheckBox {
 			            id: enableDebug
-			            text: i18n('Enable debug (log file will be placed in your home, named caffeine-plugs-debug.log)')
+			            text: i18n('Enable debug log in $HOME/.cache/caffeine-plus-debug.log')
 			            Layout.columnSpan: 2
 			        }
 		        }
