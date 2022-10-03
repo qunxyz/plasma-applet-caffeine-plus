@@ -1,5 +1,6 @@
 .kdev4/
 build/
+*.kdev4
 .project
 .directory
 *.qmlc
