@@ -1,5 +1,8 @@
 # Set minimum CMake version (required for CMake 3.0 or later)
-cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
+# "Your project should require at least CMake 3.16.0 to use FindKF5.cmake"
+cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
+
+project(plasma-applet-caffeine-plus)
 
 set(QT_MIN_VERSION "5.4.0")
 set(KF5_MIN_VERSION "5.0.0")
