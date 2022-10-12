@@ -6,7 +6,7 @@ PKG_CMD=""
 if [ -f /usr/bin/apt ]; then
 	SYS_TYPE="Debian"
 	PKG_CMD="apt-get"
-	sudo ${PKG_CMD} install g++ cmake extra-cmake-modules pkg-config gettext qtdeclarative5-dev libkf5kio-dev plasma-framework-dev
+	sudo ${PKG_CMD} install g++ cmake extra-cmake-modules pkg-config gettext qtdeclarative5-dev libkf5kio-dev libkf5plasma-dev
 elif [[ -f /usr/bin/dnf || -L /usr/bin/dnf ]]; then
 	SYS_TYPE="Fedora"
 	PKG_CMD="dnf"
