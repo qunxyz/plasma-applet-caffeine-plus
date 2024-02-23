@@ -22,6 +22,15 @@ cmake extra-cmake-modules qt5-qtbase-devel qt5-qtquickcontrols2-devel kf5-plasma
 
 Then enable the extension.
 
+## Uninstallation
+
+To uninstall after installing from git:
+
+    cd build
+    sudo make uninstall
+    cd ..
+    ./shell-restart.sh
+
 ## Development
 
     git clone git://github.com/qunxyz/plasma-applet-caffeine-plus.git
